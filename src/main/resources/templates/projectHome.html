@@ -7,12 +7,12 @@
     <main role="main">
         <div class="container">
             <div class="container-fluid">
-                <h1 class="display-3">Welcome to ConsumptionCalc.</h1>
+                <h1 class="display-3" th:text="${project}"></h1>
 
-                <h2>Projects</h2>
+                <h2>Counters</h2>
                 <ul>
-                    <li th:each="project : ${projects}">
-                        <a th:href="@{'/' + ${project} + '/'}" th:text="${project}"></a>
+                    <li th:each="counter : ${counters}">
+                        <a th:href="@{'/' + ${project} + '/' + ${counter} + '/2022/'}" th:text="${counter}"></a>
                     </li>
                 </ul>
             </div>

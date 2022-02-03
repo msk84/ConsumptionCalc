@@ -1,0 +1,38 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header.html :: header"></head>
+<body>
+    <div th:replace="fragments/navbar.html :: navbar"></div>
+
+    <main role="main">
+        <div class="container">
+            <div class="container-fluid">
+                <h1 class="display-3" th:text="${project}"></h1>
+                <h2 th:text="${counter}"></h2>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Time</th>
+                            <th scope="col">Counter value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="dataRow, dataIndex : ${counterData.counterData}">
+                            <th scope="row" th:text="${dataIndex.index}"></th>
+                            <td th:text="${dataRow.date}"></td>
+                            <td th:text="${dataRow.time}"></td>
+                            <td th:text="${dataRow.value}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="fragments/footer.html :: footer"></div>
+
+</body>
+</html>
