@@ -13,14 +13,14 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Timeframe</th>
-                            <th scope="col">Counter value</th>
+                            <th scope="col" th:each="column : ${evaluationData.evaluationColumns}" th:text="${column.header}"></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="dataRow, dataIndex : ${evaluationData.evaluationDataRows}">
                             <th scope="row" th:text="${dataIndex.index}"></th>
-                            <td th:text="${#temporals.format(dataRow.from, 'yyyy-MM-dd HH:mm')} + '-' + ${#temporals.format(dataRow.until, 'yyyy-MM-dd HH:mm')}"></td>
-                            <td th:text="${dataRow.columnData}"></td>
+                            <td th:text="${#temporals.format(dataRow.from, 'yyyy-MM-dd HH:mm')} + ' - ' + ${#temporals.format(dataRow.until, 'yyyy-MM-dd HH:mm')}"></td>
+                            <td th:each="columnValue : ${dataRow.columnData}" th:text="${columnValue}"></td>
                         </tr>
                     </tbody>
                 </table>
