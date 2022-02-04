@@ -1,5 +1,6 @@
 package net.msk.consumptionCalc.file;
 
+import net.msk.consumptionCalc.model.EvaluationData;
 import net.msk.consumptionCalc.model.RawCounterData;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,11 @@ public class DataService {
 
     public RawCounterData getRawCounterData(final String project, final String counter, final String period) throws IOException {
         final Path dataFilePath = this.fileSystemService.getDataFile(project, counter, period);
-        return this.csvService.getCounterData(dataFilePath);
+        return this.csvService.loadRawCounterData(dataFilePath);
+    }
+
+    public EvaluationData getEvaluationSimpleData(final String project, final String fileId) throws IOException {
+        final Path dataFilePath = this.fileSystemService.getEvaluationFolder(project).resolve(fileId + ".csv");
+        return this.csvService.loadEvaluationSimpleData(dataFilePath);
     }
 }

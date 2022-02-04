@@ -9,25 +9,27 @@
             <div class="container-fluid">
                 <h1 class="display-3" th:text="${project}"></h1>
                 <h2 th:text="${counter}"></h2>
-
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Time</th>
-                            <th scope="col">Counter value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="dataRow, dataIndex : ${counterData.counterData}">
-                            <th scope="row" th:text="${dataIndex.index}"></th>
-                            <td th:text="${dataRow.date}"></td>
-                            <td th:text="${dataRow.time}"></td>
-                            <td th:text="${dataRow.value}"></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <form action="#"
+                      th:action="@{/api/{project}/{counter}/{period}/evaluateSimple(project=${project}, counter=${counter}, period=${period})}"
+                      method="post">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Timestamp</th>
+                                <th scope="col">Counter value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="dataRow, dataIndex : ${counterData.counterData}">
+                                <th scope="row" th:text="${dataIndex.index}"></th>
+                                <td th:text="${#temporals.format(dataRow.timestamp, 'yyyy-MM-dd HH:mm')}"></td>
+                                <td th:text="${dataRow.value}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="submit" class="btn btn-primary">Evaluate simple</button>
+                </form>
             </div>
         </div>
     </main>

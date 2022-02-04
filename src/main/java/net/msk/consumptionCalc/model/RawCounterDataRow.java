@@ -1,7 +1,6 @@
 package net.msk.consumptionCalc.model;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
-public record RawCounterDataRow(LocalDate date, LocalTime time, double value){
+public record RawCounterDataRow(LocalDateTime timestamp, double value){
 }

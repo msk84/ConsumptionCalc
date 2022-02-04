@@ -2,6 +2,7 @@ package net.msk.consumptionCalc.web;
 
 import net.msk.consumptionCalc.file.DataService;
 import net.msk.consumptionCalc.file.FileSystemService;
+import net.msk.consumptionCalc.model.EvaluationData;
 import net.msk.consumptionCalc.model.RawCounterData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.nio.file.Path;
 import java.util.List;
 
 @Controller
@@ -81,5 +82,26 @@ public class TemplateController {
         model.addAttribute("counterData", rawCounterData);
 
         return "counterData";
+    }
+
+    @GetMapping("/{project}/evaluationResult")
+    public String evaluationResult(@PathVariable("project") final String project,
+                              @RequestParam(name = "id") String fileId,
+                              final Model model) {
+        final EvaluationData evaluationData;
+
+        try {
+            evaluationData = this.dataService.getEvaluationSimpleData(project, fileId);
+        }
+        catch (final Exception e) {
+            LOGGER.error("Failed loading evaluation data for project '{}' id '{}'.", project, fileId, e);
+            return "error";
+        }
+
+        model.addAttribute("project", project);
+        model.addAttribute("fileId", fileId);
+        model.addAttribute("evaluationData", evaluationData);
+
+        return "evaluationResultData";
     }
 }

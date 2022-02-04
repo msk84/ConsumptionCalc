@@ -16,11 +16,18 @@
         <ul class="navbar-nav mr-auto">
             <li><a class="nav-link" href="/asdf">asdf</a></li>
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" role="button" data-bs-toggle="dropdown" aria-expanded="false">Match</a>
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" role="button" data-bs-toggle="dropdown" aria-expanded="false">asdf</a>
                 <ul class="dropdown-menu" aria-labelledby="dropdown01">
                     <li><a class="dropdown-item" href="/do">do</a></li>
                 </ul>
             </li>
+        </ul>
+    </div>
+
+    <div class="collapse navbar-collapse justify-content-end">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item text-light" th:text="${project} ?: '-'"></li>
+            <li><a class="nav-link" href="/asdf"><i class="bi bi-gear"></i></a></li>
         </ul>
     </div>
 </nav>

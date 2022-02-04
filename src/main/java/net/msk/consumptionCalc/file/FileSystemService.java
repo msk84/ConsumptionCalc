@@ -62,6 +62,15 @@ public class FileSystemService {
         return this.ensureFolder(dataFolder);
     }
 
+    public Path getEvaluationFolder(final String project) throws IOException {
+        this.ensureFolder(this.baseFolderPath);
+        this.ensureFolder(this.projectsFolderPath);
+        final Path projectPath = this.projectsFolderPath.resolve(project);
+        this.ensureFolder(projectPath);
+        final Path evalFolder = projectPath.resolve("evaluation");
+        return this.ensureFolder(evalFolder);
+    }
+
     private Path getCounterFolder(final String project, final String counter) throws IOException {
         final Path dataFolder = this.getDataFolder(project);
         final Path counterFolder = dataFolder.resolve(counter);
