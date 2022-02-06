@@ -29,7 +29,7 @@ public class EvaluationService {
 
         final List<EvaluationDataRow> dataList = new ArrayList<>();
 
-        for(int i=0; i < rawCounterData.counterData().size() - 1; i++) {
+        for(int i = 0; i < rawCounterData.counterData().size() - 1; i++) {
             final List<String> data = new ArrayList<>();
             final RawCounterDataRow last = rawCounterData.counterData().get(i);
             final RawCounterDataRow current = rawCounterData.counterData().get(i+1);

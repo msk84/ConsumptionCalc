@@ -88,15 +88,14 @@ public class FileSystemService {
         return this.getFolderList(dataFolder);
     }
 
-    public Path getDataFile(final String project, final String counter, final String period) throws IOException {
+    public Path getRawDataFile(final String project, final String counter, final String period) throws IOException {
         final Path counterFolder = this.getCounterFolder(project, counter);
         final Path dataFile = counterFolder.resolve(period + ".csv");
         if(Files.exists(dataFile)) {
             return dataFile;
         }
         else {
-            throw new IOException("Data file " + dataFile + " not found.");
+            return Files.createFile(dataFile);
         }
     }
-
 }

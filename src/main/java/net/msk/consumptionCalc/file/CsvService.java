@@ -4,6 +4,8 @@ import net.msk.consumptionCalc.model.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -13,6 +15,8 @@ import java.util.*;
 
 @Service
 public class CsvService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CsvService.class);
 
     private CSVFormat getDefaultCsvFormat() {
         return CSVFormat.DEFAULT.builder()
@@ -42,6 +46,32 @@ public class CsvService {
         return new RawCounterData(result);
     }
 
+    public void persistRawCounterData(final Path file, final RawCounterData rawCounterData) throws IOException {
+        final FileWriter out = new FileWriter(file.toFile());
+
+        final List<String> headers = new ArrayList<>();
+        headers.add("timestamp");
+        headers.add("value");
+
+        try (CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT.builder()
+                .setHeader(headers.toArray(String[]::new))
+                .setDelimiter(";")
+                .build())) {
+
+            rawCounterData.counterData().forEach(row -> {
+                final List<String> rowData = new ArrayList<>();
+                rowData.add(row.timestamp().toString());
+                rowData.add(Double.toString(row.value()));
+                try {
+                    printer.printRecord(rowData);
+                }
+                catch (final IOException e) {
+                    LOGGER.error("Failed to write RawCounterDataRow.", e);
+                }
+            });
+        }
+    }
+
     public void persistEvaluationSimpleResult(final Path file, final EvaluationData evaluationData) throws IOException {
         final FileWriter out = new FileWriter(file.toFile());
 
@@ -59,13 +89,12 @@ public class CsvService {
                 final List<String> rowData = new ArrayList<>();
                 rowData.add(row.from().toString());
                 rowData.add(row.until().toString());
-                row.columnData().forEach(col -> {
-                    rowData.add(col);
-                });
+                rowData.addAll(row.columnData());
                 try {
                     printer.printRecord(rowData);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                }
+                catch (IOException e) {
+                    LOGGER.error("Failed to write EvaluationResultRow.", e);
                 }
             });
         }

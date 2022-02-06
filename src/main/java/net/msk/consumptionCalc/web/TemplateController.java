@@ -4,6 +4,7 @@ import net.msk.consumptionCalc.file.DataService;
 import net.msk.consumptionCalc.file.FileSystemService;
 import net.msk.consumptionCalc.model.EvaluationData;
 import net.msk.consumptionCalc.model.RawCounterData;
+import net.msk.consumptionCalc.model.thnew.CounterMeasurement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Controller
@@ -80,6 +83,7 @@ public class TemplateController {
         model.addAttribute("counter", counter);
         model.addAttribute("period", period);
         model.addAttribute("counterData", rawCounterData);
+        model.addAttribute("newCounterValue", new CounterMeasurement(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), 0.0));
 
         return "counterData";
     }

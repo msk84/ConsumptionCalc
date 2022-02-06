@@ -11,7 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/evaluation")
 public class EvaluationController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EvaluationController.class);
