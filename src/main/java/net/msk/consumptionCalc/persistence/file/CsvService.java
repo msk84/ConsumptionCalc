@@ -1,4 +1,4 @@
-package net.msk.consumptionCalc.file;
+package net.msk.consumptionCalc.persistence.file;
 
 import net.msk.consumptionCalc.model.*;
 import org.apache.commons.csv.CSVFormat;

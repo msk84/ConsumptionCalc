@@ -1,4 +1,4 @@
-package net.msk.consumptionCalc.file;
+package net.msk.consumptionCalc.persistence.file;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

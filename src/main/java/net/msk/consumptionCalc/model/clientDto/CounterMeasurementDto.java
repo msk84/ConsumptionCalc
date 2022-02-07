@@ -1,14 +1,14 @@
-package net.msk.consumptionCalc.model.thnew;
+package net.msk.consumptionCalc.model.clientDto;
 
-public class CounterMeasurement {
+public class CounterMeasurementDto {
 
     private String timestamp;
     private double value;
 
-    public CounterMeasurement() {
+    public CounterMeasurementDto() {
     }
 
-    public CounterMeasurement(final String timestamp, final double value) {
+    public CounterMeasurementDto(final String timestamp, final double value) {
         this.timestamp = timestamp;
         this.value = value;
     }

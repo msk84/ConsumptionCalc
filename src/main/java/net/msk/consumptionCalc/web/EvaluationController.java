@@ -1,14 +1,14 @@
 package net.msk.consumptionCalc.web;
 
-import net.msk.consumptionCalc.file.DataService;
-import net.msk.consumptionCalc.file.EvaluationService;
+import net.msk.consumptionCalc.service.DataService;
+import net.msk.consumptionCalc.service.EvaluationService;
 import net.msk.consumptionCalc.model.RawCounterData;
+import net.msk.consumptionCalc.service.exception.DataLoadingException;
+import net.msk.consumptionCalc.service.exception.DataPersistanceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/evaluation")
@@ -36,8 +36,8 @@ public class EvaluationController {
             final String fileId = this.evaluationService.evaluateSimple(project, rawCounterData);
             return new ModelAndView("redirect:/" + project + "/evaluationResult?id=" + fileId);
         }
-        catch (final IOException e) {
-            LOGGER.error("", e);
+        catch (final DataPersistanceException | DataLoadingException e) {
+            LOGGER.error("Failed to evaluate simple.", e);
         }
 
         return new ModelAndView("redirect:/error");

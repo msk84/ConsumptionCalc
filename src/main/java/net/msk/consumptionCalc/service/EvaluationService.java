@@ -1,6 +1,9 @@
-package net.msk.consumptionCalc.file;
+package net.msk.consumptionCalc.service;
 
 import net.msk.consumptionCalc.model.*;
+import net.msk.consumptionCalc.persistence.file.CsvService;
+import net.msk.consumptionCalc.persistence.file.FileSystemService;
+import net.msk.consumptionCalc.service.exception.DataPersistanceException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -14,21 +17,14 @@ import java.util.UUID;
 @Service
 public class EvaluationService {
 
-    private final FileSystemService fileSystemService;
-    private final CsvService csvService;
+    private final DataService dataService;
 
-    public EvaluationService(final FileSystemService fileSystemService, final CsvService csvService) {
-        this.fileSystemService = fileSystemService;
-        this.csvService = csvService;
+    public EvaluationService(final DataService dataService) {
+        this.dataService = dataService;
     }
 
-    public String evaluateSimple(final String project, final RawCounterData rawCounterData) throws IOException {
-        final Path evaluationFolder = this.fileSystemService.getEvaluationFolder(project);
-        final String fileUuid = UUID.randomUUID().toString();
-        final Path filePath = evaluationFolder.resolve(fileUuid + ".csv");
-
+    public String evaluateSimple(final String project, final RawCounterData rawCounterData) throws DataPersistanceException {
         final List<EvaluationDataRow> dataList = new ArrayList<>();
-
         for(int i = 0; i < rawCounterData.counterData().size() - 1; i++) {
             final List<String> data = new ArrayList<>();
             final RawCounterDataRow last = rawCounterData.counterData().get(i);
@@ -49,9 +45,11 @@ public class EvaluationService {
         columns.add(new EvaluationColumn("Total"));
         columns.add(new EvaluationColumn("Per day"));
 
-        final EvaluationData edata = new EvaluationData(LocalDateTime.now(), columns, dataList);
+        final EvaluationData evaluationData = new EvaluationData(LocalDateTime.now(), columns, dataList);
 
-        this.csvService.persistEvaluationSimpleResult(filePath, edata);
+        final String fileUuid = UUID.randomUUID().toString();
+        this.dataService.saveEvaluationSimpleData(project, fileUuid, evaluationData);
+
         return fileUuid;
     }
 

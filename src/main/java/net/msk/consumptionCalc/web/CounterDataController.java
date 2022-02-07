@@ -1,14 +1,14 @@
 package net.msk.consumptionCalc.web;
 
-import net.msk.consumptionCalc.file.DataService;
+import net.msk.consumptionCalc.service.DataService;
 import net.msk.consumptionCalc.model.RawCounterDataRow;
-import net.msk.consumptionCalc.model.thnew.CounterMeasurement;
+import net.msk.consumptionCalc.model.clientDto.CounterMeasurementDto;
+import net.msk.consumptionCalc.service.exception.DataPersistanceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 
 @RestController
@@ -26,14 +26,14 @@ public class CounterDataController {
     public ModelAndView addCounterData(@PathVariable("project") final String project,
                                        @PathVariable("counter") final String counter,
                                        @PathVariable("period") final String period,
-                                       @ModelAttribute CounterMeasurement counterData) {
+                                       @ModelAttribute CounterMeasurementDto counterData) {
 
         try {
             this.dataService.addCounterData(project, counter, period, new RawCounterDataRow(LocalDateTime.parse(counterData.getTimestamp()), counterData.getValue()));
             return new ModelAndView("redirect:/" + project + "/" + counter + "/" + period);
         }
-        catch (final IOException e) {
-            LOGGER.error("", e);
+        catch (final DataPersistanceException e) {
+            LOGGER.error("Failed to add counter data.", e);
         }
 
         return new ModelAndView("redirect:/error");
