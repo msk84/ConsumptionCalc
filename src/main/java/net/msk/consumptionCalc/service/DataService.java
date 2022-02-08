@@ -1,13 +1,15 @@
 package net.msk.consumptionCalc.service;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import net.msk.consumptionCalc.model.EvaluationData;
+import net.msk.consumptionCalc.model.EvaluationMode;
 import net.msk.consumptionCalc.model.RawCounterData;
 import net.msk.consumptionCalc.model.RawCounterDataRow;
 import net.msk.consumptionCalc.persistence.file.CsvService;
 import net.msk.consumptionCalc.persistence.file.FileSystemService;
 import net.msk.consumptionCalc.service.exception.DataLoadingException;
 import net.msk.consumptionCalc.service.exception.DataPersistanceException;
-import net.msk.consumptionCalc.web.CounterDataController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class DataService {
@@ -24,41 +27,24 @@ public class DataService {
 
     private final CsvService csvService;
     private final FileSystemService fileSystemService;
+    private final EvaluationService evaluationService;
+    private final Cache<UUID, EvaluationData> evaluationDataCache;
 
-    public DataService(final CsvService csvService, final FileSystemService fileSystemService) {
+    public DataService(final CsvService csvService, final FileSystemService fileSystemService, final EvaluationService evaluationService) {
         this.csvService = csvService;
         this.fileSystemService = fileSystemService;
+        this.evaluationService = evaluationService;
+        this.evaluationDataCache = Caffeine.newBuilder()
+                .maximumSize(100)
+                .build();
     }
 
     public RawCounterData getRawCounterData(final String project, final String counter, final String period) throws DataLoadingException {
         try {
             final Path dataFilePath = this.fileSystemService.getRawDataFile(project, counter, period);
             return this.csvService.loadRawCounterData(dataFilePath);
-        }
-        catch (final IOException e) {
+        } catch (final IOException e) {
             throw new DataLoadingException("Failed to load rawCounterData.", e);
-        }
-    }
-
-    public EvaluationData getEvaluationSimpleData(final String project, final String fileId) throws DataLoadingException {
-        try {
-            final Path dataFilePath = this.fileSystemService.getEvaluationFolder(project).resolve(fileId + ".csv");
-            return this.csvService.loadEvaluationSimpleData(dataFilePath);
-        }
-        catch (final IOException e) {
-            throw new DataLoadingException("Failed to load evaluationSimpleData.", e);
-        }
-
-    }
-
-    public void saveEvaluationSimpleData(final String project, final String fileUuid, final EvaluationData evaluationData) throws DataPersistanceException {
-        try {
-            final Path evaluationFolder = this.fileSystemService.getEvaluationFolder(project);
-            final Path filePath = evaluationFolder.resolve(fileUuid + ".csv");
-            this.csvService.persistEvaluationSimpleResult(filePath, evaluationData);
-        }
-        catch (final IOException e) {
-            throw new DataPersistanceException("Failed to persist evaluationSimpleData.", e);
         }
     }
 
@@ -76,6 +62,50 @@ public class DataService {
         }
         catch (final IOException e) {
             throw new DataPersistanceException("Failed to addCounterData.", e);
+        }
+    }
+
+    public UUID evaluateSimple(final String project, final String counter, final String period, final EvaluationMode evaluationMode) throws DataLoadingException {
+        final RawCounterData rawCounterData = this.getRawCounterData(project, counter, period);
+        final EvaluationData evaluationData = this.evaluationService.evaluateSimple(project, rawCounterData, evaluationMode);
+        this.evaluationDataCache.put(evaluationData.evaluationId(), evaluationData);
+
+        return evaluationData.evaluationId();
+    }
+
+    public void persistEvaluationData(final UUID evaluationId) throws DataPersistanceException {
+        final EvaluationData evaluationData = this.evaluationDataCache.getIfPresent(evaluationId);
+        if(evaluationData != null) {
+            try {
+                final Path evaluationFolder = this.fileSystemService.getEvaluationFolder(evaluationData.project());
+                final Path filePath = evaluationFolder.resolve(evaluationData.evaluationId() + ".csv");
+                this.csvService.persistEvaluationSimpleResult(filePath, evaluationData);
+            }
+            catch (final IOException e) {
+                throw new DataPersistanceException("Failed to persist evaluationSimpleData.", e);
+            }
+        }
+        else {
+            LOGGER.error("Failed finding evaluation data in cache. EvaluationId: {}", evaluationId);
+        }
+    }
+
+    public EvaluationData getEvaluationData(final String project, final UUID evaluationId) throws DataLoadingException {
+        LOGGER.info("Current cache size: " + this.evaluationDataCache.estimatedSize());
+        final EvaluationData evaluationData = this.evaluationDataCache.getIfPresent(evaluationId);
+        if(evaluationData != null) {
+            return evaluationData;
+        }
+        else {
+            try {
+                final Path dataFilePath = this.fileSystemService.getEvaluationFolder(project).resolve(evaluationId + ".csv");
+                final EvaluationData evaluationDataFromFile = this.csvService.loadEvaluationSimpleData(project, evaluationId, dataFilePath);
+                this.evaluationDataCache.put(evaluationId, evaluationDataFromFile);
+                return evaluationDataFromFile;
+            }
+            catch (final IOException e) {
+                throw new DataLoadingException("Failed to load evaluationData.", e);
+            }
         }
     }
 }

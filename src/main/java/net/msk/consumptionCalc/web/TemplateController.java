@@ -1,10 +1,12 @@
 package net.msk.consumptionCalc.web;
 
+import net.msk.consumptionCalc.model.EvaluationMode;
 import net.msk.consumptionCalc.service.DataService;
 import net.msk.consumptionCalc.persistence.file.FileSystemService;
 import net.msk.consumptionCalc.model.EvaluationData;
 import net.msk.consumptionCalc.model.RawCounterData;
 import net.msk.consumptionCalc.model.clientDto.CounterMeasurementDto;
+import net.msk.consumptionCalc.service.exception.DataLoadingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -12,10 +14,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 public class TemplateController {
@@ -88,22 +92,48 @@ public class TemplateController {
         return "counterData";
     }
 
+    @GetMapping("/{project}/{counter}/{period}/evaluateSimple")
+    public ModelAndView evaluateSimple(@PathVariable("project") final String project,
+                                       @PathVariable("counter") final String counter,
+                                       @PathVariable("period") final String period,
+                                       @RequestParam(name = "mode", required = false) final String mode,
+                                       final Model model){
+
+        try {
+            final EvaluationMode evaluationMode;
+            if(mode != null) {
+                evaluationMode = EvaluationMode.valueOf(mode);
+            }
+            else {
+                evaluationMode = EvaluationMode.Timeframe;
+            }
+
+            final UUID evaluationId = this.dataService.evaluateSimple(project, counter, period, evaluationMode);
+            return new ModelAndView("redirect:/" + project + "/evaluationResult?id=" + evaluationId.toString());
+        }
+        catch (final DataLoadingException e) {
+            LOGGER.error("Failed to evaluate simple.", e);
+        }
+
+        return new ModelAndView("redirect:/error");
+    }
+
     @GetMapping("/{project}/evaluationResult")
     public String evaluationResult(@PathVariable("project") final String project,
-                              @RequestParam(name = "id") String fileId,
+                              @RequestParam(name = "id") final String evaluationId,
                               final Model model) {
         final EvaluationData evaluationData;
 
         try {
-            evaluationData = this.dataService.getEvaluationSimpleData(project, fileId);
+            evaluationData = this.dataService.getEvaluationData(project, UUID.fromString(evaluationId));
         }
         catch (final Exception e) {
-            LOGGER.error("Failed loading evaluation data for project '{}' id '{}'.", project, fileId, e);
+            LOGGER.error("Failed loading evaluation data for project '{}' id '{}'.", project, evaluationId, e);
             return "error";
         }
 
         model.addAttribute("project", project);
-        model.addAttribute("fileId", fileId);
+        model.addAttribute("fileId", evaluationId);
         model.addAttribute("evaluationData", evaluationData);
 
         return "evaluationResultData";

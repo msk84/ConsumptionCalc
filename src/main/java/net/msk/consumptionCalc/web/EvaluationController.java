@@ -2,13 +2,13 @@ package net.msk.consumptionCalc.web;
 
 import net.msk.consumptionCalc.service.DataService;
 import net.msk.consumptionCalc.service.EvaluationService;
-import net.msk.consumptionCalc.model.RawCounterData;
-import net.msk.consumptionCalc.service.exception.DataLoadingException;
 import net.msk.consumptionCalc.service.exception.DataPersistanceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/evaluation")
@@ -24,22 +24,16 @@ public class EvaluationController {
         this.dataService = dataService;
     }
 
-    @PostMapping("/{project}/{counter}/{period}/evaluateSimple")
-    public ModelAndView evaluateSimple(@PathVariable("project") final String project,
-                                 @PathVariable("counter") final String counter,
-                                 @PathVariable("period") final String period) {
-
-        final RawCounterData rawCounterData;
+    @PostMapping("/persist/{evaluationId}")
+    public ResponseEntity<String> persistEvaluationData(@PathVariable("evaluationId") final String evaluationId) {
 
         try {
-            rawCounterData = this.dataService.getRawCounterData(project, counter, period);
-            final String fileId = this.evaluationService.evaluateSimple(project, rawCounterData);
-            return new ModelAndView("redirect:/" + project + "/evaluationResult?id=" + fileId);
+            this.dataService.persistEvaluationData(UUID.fromString(evaluationId));
+            return ResponseEntity.ok().build();
         }
-        catch (final DataPersistanceException | DataLoadingException e) {
-            LOGGER.error("Failed to evaluate simple.", e);
+        catch (final DataPersistanceException e) {
+            LOGGER.error("Failed to persist evaluation data.", e);
+            return ResponseEntity.internalServerError().build();
         }
-
-        return new ModelAndView("redirect:/error");
     }
 }

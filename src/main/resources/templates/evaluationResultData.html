@@ -20,7 +20,7 @@
                         <tr th:each="dataRow, dataIndex : ${evaluationData.evaluationDataRows}">
                             <th scope="row" th:text="${dataIndex.index}"></th>
                             <td th:text="${#temporals.format(dataRow.from, 'yyyy-MM-dd HH:mm')} + ' - ' + ${#temporals.format(dataRow.until, 'yyyy-MM-dd HH:mm')}"></td>
-                            <td th:each="columnValue : ${dataRow.columnData}" th:text="${columnValue}"></td>
+                            <td th:each="columnValue : ${dataRow.columnData}" th:text="${#numbers.formatDecimal(columnValue,1,2)}"></td>
                         </tr>
                     </tbody>
                 </table>

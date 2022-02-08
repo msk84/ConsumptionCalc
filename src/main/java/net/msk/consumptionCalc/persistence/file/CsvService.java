@@ -100,7 +100,7 @@ public class CsvService {
         }
     }
 
-    public EvaluationData loadEvaluationSimpleData(Path dataFilePath) throws IOException {
+    public EvaluationData loadEvaluationSimpleData(final String project, final UUID evaluationId, final Path dataFilePath) throws IOException {
         final Reader dataFileReader = new FileReader(dataFilePath.toFile());
         final CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
                 .setDelimiter(";")
@@ -127,6 +127,6 @@ public class CsvService {
             dataRows.add(new EvaluationDataRow(from, until, columnData.subList(2, columnData.size())));
         });
 
-        return new EvaluationData(LocalDateTime.now(), headers, dataRows);
+        return new EvaluationData(evaluationId, project, LocalDateTime.now(), headers, dataRows);
     }
 }
