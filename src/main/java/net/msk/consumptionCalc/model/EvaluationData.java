@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public record EvaluationData(UUID evaluationId,
                              String project,
+                             EvaluationMode evaluationMode,
                              LocalDateTime evaluationTimestamp,
                              List<EvaluationColumn> evaluationColumns,
                              List<EvaluationDataRow> evaluationDataRows) {

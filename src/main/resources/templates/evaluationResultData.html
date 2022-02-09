@@ -8,6 +8,15 @@
         <div class="container">
             <div class="container-fluid">
                 <h1>Evaluation result</h1>
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend="${#strings.equals(evaluationData.evaluationMode, 'Month')} ? 'active' : ''" aria-current="page" th:href="@{/{project}/{counter}/{period}/evaluateSimple(project=${project}, counter=${counter}, period=${period}, mode='Month')}">Month</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend="${#strings.equals(evaluationData.evaluationMode, 'Timeframe')} ? 'active' : ''" th:href="@{/{project}/{counter}/{period}/evaluateSimple(project=${project}, counter=${counter}, period=${period}, mode='Timeframe')}">Timeframe</a>
+                    </li>
+                </ul>
+
                 <table class="table">
                     <thead>
                         <tr>
@@ -20,7 +29,7 @@
                         <tr th:each="dataRow, dataIndex : ${evaluationData.evaluationDataRows}">
                             <th scope="row" th:text="${dataIndex.index}"></th>
                             <td th:text="${#temporals.format(dataRow.from, 'yyyy-MM-dd HH:mm')} + ' - ' + ${#temporals.format(dataRow.until, 'yyyy-MM-dd HH:mm')}"></td>
-                            <td th:each="columnValue : ${dataRow.columnData}" th:text="${#numbers.formatDecimal(columnValue,1,2)}"></td>
+                            <td th:each="columnValue : ${dataRow.columnData}" th:text="${columnValue ne null} ? ${#numbers.formatDecimal(columnValue,1,2)} : '-'"></td>
                         </tr>
                     </tbody>
                 </table>

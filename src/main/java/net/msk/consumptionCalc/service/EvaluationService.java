@@ -28,27 +28,39 @@ public class EvaluationService {
     private EvaluationData evaluateTimeframe(final String project, final RawCounterData rawCounterData) {
         final List<EvaluationDataRow> dataList = new ArrayList<>();
         for(int i = 0; i < rawCounterData.counterData().size() - 1; i++) {
-            final List<String> data = new ArrayList<>();
-            final RawCounterDataRow last = rawCounterData.counterData().get(i);
-            final RawCounterDataRow current = rawCounterData.counterData().get(i+1);
+            final List<String> columnData = new ArrayList<>();
+            final RawCounterDataRow lastMeasurement = rawCounterData.counterData().get(i);
+            final RawCounterDataRow currentMeasurement = rawCounterData.counterData().get(i+1);
 
-            final long days = ChronoUnit.DAYS.between(last.timestamp(), current.timestamp());
+            final LocalDateTime startDateTime = lastMeasurement.timestamp();
+            final LocalDateTime endDateTime = currentMeasurement.timestamp();
 
-            final double consumption = current.value() - last.value();
-            data.add(Double.toString(consumption));
+            final double consumption = currentMeasurement.value() - lastMeasurement.value();
+            columnData.add(Double.toString(consumption));
 
-            final double consumptionPerDay = consumption / days;
-            data.add(Double.toString(consumptionPerDay));
+            if(ChronoUnit.DAYS.between(startDateTime, endDateTime) < 1) {
+                columnData.add(null);
+                columnData.add(null);
+            }
+            else {
+                long hours = ChronoUnit.HOURS.between(startDateTime, endDateTime) +
+                        ((startDateTime.getMinute() < 30 && endDateTime.getMinute() > 30) ? 1 : 0);
 
-            dataList.add(new EvaluationDataRow(last.timestamp(), current.timestamp(), data));
+                final double consumptionPerHour = consumption / hours;
+                final double consumptionPerDay = consumptionPerHour * 24;
+                columnData.add(Double.toString(consumptionPerDay));
+                columnData.add(Double.toString(consumptionPerHour));
+            }
+            dataList.add(new EvaluationDataRow(startDateTime, endDateTime, columnData));
         }
 
         final List<EvaluationColumn> columns = new ArrayList<>();
         columns.add(new EvaluationColumn("Total"));
-        columns.add(new EvaluationColumn("Per day"));
+        columns.add(new EvaluationColumn("per Day"));
+        columns.add(new EvaluationColumn("per Hour"));
 
         final UUID evaluationUuid = UUID.randomUUID();
-        return new EvaluationData(evaluationUuid, project, LocalDateTime.now(), columns, dataList);
+        return new EvaluationData(evaluationUuid, project, EvaluationMode.Timeframe, LocalDateTime.now(), columns, dataList);
     }
 
     private EvaluationData evaluateByMonth(final String project, final RawCounterData rawCounterData) {
@@ -63,7 +75,6 @@ public class EvaluationService {
             final LocalDateTime endDateTime = currentMeasurement.timestamp();
 
             final double consumption = currentMeasurement.value() - lastMeasurement.value();
-
 
             if(ChronoUnit.DAYS.between(startDateTime, endDateTime) < 1) {
                 consumptionPerMonth.compute(startDateTime.format(MAP_KEY_FORMAT), (key, value) -> (value == null) ? consumption : Double.sum(value, consumption));
@@ -124,7 +135,7 @@ public class EvaluationService {
         columns.add(new EvaluationColumn("per Hour"));
 
         final UUID evaluationUuid = UUID.randomUUID();
-        return new EvaluationData(evaluationUuid, project, LocalDateTime.now(), columns, dataList);
+        return new EvaluationData(evaluationUuid, project, EvaluationMode.Month, LocalDateTime.now(), columns, dataList);
     }
 
     private LocalDateTime applyHourRoundingLogic(final LocalDateTime timestamp) {

@@ -14,12 +14,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
 
 @Controller
 public class TemplateController {
@@ -93,7 +91,7 @@ public class TemplateController {
     }
 
     @GetMapping("/{project}/{counter}/{period}/evaluateSimple")
-    public ModelAndView evaluateSimple(@PathVariable("project") final String project,
+    public String evaluateSimple(@PathVariable("project") final String project,
                                        @PathVariable("counter") final String counter,
                                        @PathVariable("period") final String period,
                                        @RequestParam(name = "mode", required = false) final String mode,
@@ -108,34 +106,15 @@ public class TemplateController {
                 evaluationMode = EvaluationMode.Timeframe;
             }
 
-            final UUID evaluationId = this.dataService.evaluateSimple(project, counter, period, evaluationMode);
-            return new ModelAndView("redirect:/" + project + "/evaluationResult?id=" + evaluationId.toString());
+            final EvaluationData evaluationData = this.dataService.evaluateSimple(project, counter, period, evaluationMode);
+            model.addAttribute("project", project);
+            model.addAttribute("evaluationData", evaluationData);
+
+            return "evaluationResultData";
         }
         catch (final DataLoadingException e) {
             LOGGER.error("Failed to evaluate simple.", e);
-        }
-
-        return new ModelAndView("redirect:/error");
-    }
-
-    @GetMapping("/{project}/evaluationResult")
-    public String evaluationResult(@PathVariable("project") final String project,
-                              @RequestParam(name = "id") final String evaluationId,
-                              final Model model) {
-        final EvaluationData evaluationData;
-
-        try {
-            evaluationData = this.dataService.getEvaluationData(project, UUID.fromString(evaluationId));
-        }
-        catch (final Exception e) {
-            LOGGER.error("Failed loading evaluation data for project '{}' id '{}'.", project, evaluationId, e);
             return "error";
         }
-
-        model.addAttribute("project", project);
-        model.addAttribute("fileId", evaluationId);
-        model.addAttribute("evaluationData", evaluationData);
-
-        return "evaluationResultData";
     }
 }
