@@ -10,10 +10,10 @@
                 <h1>Evaluation result</h1>
                 <ul class="nav nav-tabs">
                     <li class="nav-item">
-                        <a class="nav-link" th:classappend="${#strings.equals(evaluationData.evaluationMode, 'Month')} ? 'active' : ''" aria-current="page" th:href="@{/{project}/{counter}/{period}/evaluateSimple(project=${project}, counter=${counter}, period=${period}, mode='Month')}">Month</a>
+                        <a class="nav-link" th:classappend="${#strings.equals(evaluationData.evaluationMode, 'Month')} ? 'active' : ''" aria-current="page" th:href="@{/{project}/{counter}/evaluateSimple(project=${project}, counter=${counter}, periodFrom=${periodFrom}, periodUntil=${periodUntil}, mode='Month')}">Month</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" th:classappend="${#strings.equals(evaluationData.evaluationMode, 'Timeframe')} ? 'active' : ''" th:href="@{/{project}/{counter}/{period}/evaluateSimple(project=${project}, counter=${counter}, period=${period}, mode='Timeframe')}">Timeframe</a>
+                        <a class="nav-link" th:classappend="${#strings.equals(evaluationData.evaluationMode, 'Timeframe')} ? 'active' : ''" th:href="@{/{project}/{counter}/evaluateSimple(project=${project}, counter=${counter}, periodFrom=${periodFrom}, periodUntil=${periodUntil}, mode='Timeframe')}">Timeframe</a>
                     </li>
                 </ul>
 

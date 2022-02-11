@@ -11,7 +11,7 @@
                 <h2 th:text="${counter}"></h2>
 
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddCounterData">Add measurement</button>
-                <a th:href="@{/{project}/{counter}/{period}/evaluateSimple(project=${project}, counter=${counter}, period=${period}, mode='Month')}" class="btn btn-primary" role="button" aria-pressed="true">Evaluate simple</a>
+                <a th:href="@{/{project}/{counter}/evaluateSimple(project=${project}, counter=${counter}, periodFrom=${periodFrom}, periodUntil=${periodUntil}, mode='Month')}" class="btn btn-primary" role="button" aria-pressed="true">Evaluate simple</a>
 
                 <div class="accordion accordion-flush" style="margin-top: 30px; margin-bottom: 30px;">
                     <div class="accordion-item">
@@ -51,20 +51,13 @@
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="#" th:action="@{/api/counterData/{project}/{counter}/{period}/addCounterData(project=${project}, counter=${counter}, period=${period})}"
+                    <form action="#" th:action="@{/api/counterData/{project}/{counter}/addCounterData(project=${project}, counter=${counter}, periodFrom=${periodFrom}, periodUntil=${periodUntil})}"
                           th:object="${newCounterValue}" method="post">
                         <div class="modal-header">
                             <h5 class="modal-title" id="modalLabelHighlight">Add counter data</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <!--
-                            <div class="invisible">
-                                <input type="hidden" class="form-control" id="project" th:value="${project}"/>
-                                <input type="hidden" class="form-control" id="counter" th:value="${counter}"/>
-                                <input type="hidden" class="form-control" id="period" th:value="${period}"/>
-                            </div>
-                            -->
                             <div class="row mb-3">
                                 <div class="col">
                                     <label for="addCounterDataTimestamp" class="col-form-label">Timestamp</label>

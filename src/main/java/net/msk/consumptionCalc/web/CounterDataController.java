@@ -22,15 +22,16 @@ public class CounterDataController {
         this.dataService = dataService;
     }
 
-    @PostMapping("/{project}/{counter}/{period}/addCounterData")
+    @PostMapping("/{project}/{counter}/addCounterData")
     public ModelAndView addCounterData(@PathVariable("project") final String project,
                                        @PathVariable("counter") final String counter,
-                                       @PathVariable("period") final String period,
+                                       @RequestParam(name = "periodFrom", required = false) Integer periodFrom,
+                                       @RequestParam(name = "periodUntil", required = false) Integer periodUntil,
                                        @ModelAttribute CounterMeasurementDto counterData) {
 
         try {
-            this.dataService.addCounterData(project, counter, period, new RawCounterDataRow(LocalDateTime.parse(counterData.getTimestamp()), counterData.getValue()));
-            return new ModelAndView("redirect:/" + project + "/" + counter + "/" + period);
+            this.dataService.addCounterData(project, counter, new RawCounterDataRow(LocalDateTime.parse(counterData.getTimestamp()), counterData.getValue()));
+            return new ModelAndView("redirect:/" + project + "/" + counter + "/counterData?periodFrom=" + periodFrom + "&periodUntil=" + periodUntil);
         }
         catch (final DataPersistanceException e) {
             LOGGER.error("Failed to add counter data.", e);

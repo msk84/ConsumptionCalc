@@ -1,6 +1,7 @@
 package net.msk.consumptionCalc.web;
 
 import net.msk.consumptionCalc.model.EvaluationMode;
+import net.msk.consumptionCalc.model.Project;
 import net.msk.consumptionCalc.service.DataService;
 import net.msk.consumptionCalc.persistence.file.FileSystemService;
 import net.msk.consumptionCalc.model.EvaluationData;
@@ -34,18 +35,16 @@ public class TemplateController {
 
     @GetMapping("/")
     public String homePage(final Model model) {
-        final List<String> projectList;
+        final List<Project> projectList;
 
         try {
-            projectList = this.fileSystemService.getProjectList();
-        }
-        catch (final Exception e) {
+            projectList = this.fileSystemService.getProjects();
+            model.addAttribute("projects", projectList);
+            return "index";
+        } catch (final Exception e) {
             LOGGER.error("Failed loading projectList.", e);
             return "error";
         }
-
-        model.addAttribute("projects", projectList);
-        return "index";
     }
 
     @GetMapping("/{project}/")
@@ -54,8 +53,7 @@ public class TemplateController {
 
         try {
             counterList = this.fileSystemService.getCounterList(project);
-        }
-        catch (final Exception e) {
+        } catch (final Exception e) {
             LOGGER.error("Failed loading counterList for project '{}'.", project, e);
             return "error";
         }
@@ -66,53 +64,57 @@ public class TemplateController {
         return "projectHome";
     }
 
-    @GetMapping("/{project}/{counter}/{period}")
+    @GetMapping("/{project}/{counter}/counterData")
     public String counterHome(@PathVariable("project") final String project,
                               @PathVariable("counter") final String counter,
-                              @PathVariable("period") final String period,
+                              @RequestParam(name = "periodFrom", required = false) Integer periodFrom,
+                              @RequestParam(name = "periodUntil", required = false) Integer periodUntil,
                               final Model model) {
         final RawCounterData rawCounterData;
 
         try {
-             rawCounterData = this.dataService.getRawCounterData(project, counter, period);
-        }
-        catch (final Exception e) {
-            LOGGER.error("Failed loading counter data for project '{}' and counter '{}' in period '{}'.", project, counter, period, e);
+            periodFrom = periodFrom == null ? 2020 : periodFrom;
+            periodUntil = periodUntil == null ? 2030 : periodUntil;
+            rawCounterData = this.dataService.getRawCounterData(project, counter, periodFrom, periodUntil);
+
+            model.addAttribute("project", project);
+            model.addAttribute("counter", counter);
+            model.addAttribute("periodFrom", periodFrom);
+            model.addAttribute("periodUntil", periodUntil);
+            model.addAttribute("counterData", rawCounterData);
+            model.addAttribute("newCounterValue", new CounterMeasurementDto(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), 0.0));
+
+            return "counterData";
+        } catch (final Exception e) {
+            LOGGER.error("Failed loading counter data for project '{}' and counter '{}' in periodFrom '{}' - periodUntil '{}'.", project, counter, periodFrom, periodUntil, e);
             return "error";
         }
-
-        model.addAttribute("project", project);
-        model.addAttribute("counter", counter);
-        model.addAttribute("period", period);
-        model.addAttribute("counterData", rawCounterData);
-        model.addAttribute("newCounterValue", new CounterMeasurementDto(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), 0.0));
-
-        return "counterData";
     }
 
-    @GetMapping("/{project}/{counter}/{period}/evaluateSimple")
+    @GetMapping("/{project}/{counter}/evaluateSimple")
     public String evaluateSimple(@PathVariable("project") final String project,
-                                       @PathVariable("counter") final String counter,
-                                       @PathVariable("period") final String period,
-                                       @RequestParam(name = "mode", required = false) final String mode,
-                                       final Model model){
+                                 @PathVariable("counter") final String counter,
+                                 @RequestParam(name = "periodFrom", required = false) Integer periodFrom,
+                                 @RequestParam(name = "periodUntil", required = false) Integer periodUntil,
+                                 @RequestParam(name = "mode", required = false) final String mode,
+                                 final Model model) {
 
         try {
             final EvaluationMode evaluationMode;
-            if(mode != null) {
+            if (mode != null) {
                 evaluationMode = EvaluationMode.valueOf(mode);
-            }
-            else {
+            } else {
                 evaluationMode = EvaluationMode.Timeframe;
             }
 
-            final EvaluationData evaluationData = this.dataService.evaluateSimple(project, counter, period, evaluationMode);
+            final EvaluationData evaluationData = this.dataService.evaluateSimple(project, counter, periodFrom, periodUntil, evaluationMode);
             model.addAttribute("project", project);
             model.addAttribute("evaluationData", evaluationData);
+            model.addAttribute("periodFrom", periodFrom);
+            model.addAttribute("periodUntil", periodUntil);
 
             return "evaluationResultData";
-        }
-        catch (final DataLoadingException e) {
+        } catch (final DataLoadingException e) {
             LOGGER.error("Failed to evaluate simple.", e);
             return "error";
         }

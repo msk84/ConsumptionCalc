@@ -1,5 +1,6 @@
 package net.msk.consumptionCalc.persistence.file;
 
+import net.msk.consumptionCalc.model.Project;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -9,10 +10,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class FileSystemService {
@@ -83,19 +83,39 @@ public class FileSystemService {
         return this.getFolderList(this.projectsFolderPath);
     }
 
+    public List<Project> getProjects() throws IOException {
+        this.ensureFolder(this.baseFolderPath);
+        this.ensureFolder(this.projectsFolderPath);
+        final List<String> projectFolders = this.getFolderList(this.projectsFolderPath);
+
+        final List<Project> result = new ArrayList<>();
+        for(final String project : projectFolders) {
+            final List<String> counterList = this.getCounterList(project);
+            result.add(new Project(project, counterList));
+        }
+        return result;
+    }
+
     public List<String> getCounterList(final String project) throws IOException {
         final Path dataFolder = this.getDataFolder(project);
         return this.getFolderList(dataFolder);
     }
 
-    public Path getRawDataFile(final String project, final String counter, final String period) throws IOException {
+    public List<Path> getRawDataFiles(final String project, final String counter, final Integer periodFrom, final Integer periodUntil) throws IOException {
         final Path counterFolder = this.getCounterFolder(project, counter);
-        final Path dataFile = counterFolder.resolve(period + ".csv");
-        if(Files.exists(dataFile)) {
-            return dataFile;
+        final List<Path> result;
+        try (Stream<Path> walk = Files.walk(counterFolder)) {
+            result = walk
+                    .filter(p -> !Files.isDirectory(p))
+                    .filter(p -> this.filterDataFiles(p, periodFrom, periodUntil))
+                    .collect(Collectors.toList());
         }
-        else {
-            return Files.createFile(dataFile);
-        }
+        return result;
+    }
+
+    private boolean filterDataFiles(final Path path, final Integer periodFrom, final Integer periodUntil) {
+        final String filePath = path.getFileName().toString();
+        final Integer fileNameInt = Integer.parseInt(filePath.substring(0, filePath.length() - 4));
+        return filePath.toLowerCase(Locale.ROOT).endsWith(".csv") && (fileNameInt >= periodFrom) && (fileNameInt <= periodUntil);
     }
 }

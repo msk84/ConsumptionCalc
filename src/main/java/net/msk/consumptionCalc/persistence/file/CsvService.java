@@ -26,23 +26,25 @@ public class CsvService {
                 .build();
     }
 
-    public RawCounterData loadRawCounterData(final Path dataFilePath) throws IOException {
-        final Reader dataFileReader = new FileReader(dataFilePath.toFile());
-        final CSVFormat csvFormat = this.getDefaultCsvFormat();
-
+    public RawCounterData loadRawCounterData(final List<Path> dataFilePaths) throws IOException {
         final List<RawCounterDataRow> result = new ArrayList<>();
-        final Iterable<CSVRecord> records = csvFormat.parse(dataFileReader);
-        for(final CSVRecord record : records) {
-            final String timestampString = record.get("timestamp");
-            final String counterValueString = record.get("value");
+        for(final Path dataFilePath : dataFilePaths) {
+            final Reader dataFileReader = new FileReader(dataFilePath.toFile());
+            final CSVFormat csvFormat = this.getDefaultCsvFormat();
 
-            final LocalDateTime datetime = LocalDateTime.parse(timestampString);
-            final double counterValue = Double.parseDouble(counterValueString);
+            final Iterable<CSVRecord> records = csvFormat.parse(dataFileReader);
+            for (final CSVRecord record : records) {
+                final String timestampString = record.get("timestamp");
+                final String counterValueString = record.get("value");
 
-            result.add(new RawCounterDataRow(datetime, counterValue));
+                final LocalDateTime datetime = LocalDateTime.parse(timestampString);
+                final double counterValue = Double.parseDouble(counterValueString);
+
+                result.add(new RawCounterDataRow(datetime, counterValue));
+            }
+            dataFileReader.close();
         }
 
-        dataFileReader.close();
         return new RawCounterData(result);
     }
 
