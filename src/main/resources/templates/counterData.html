@@ -11,28 +11,39 @@
                 <h2 th:text="${counter}"></h2>
 
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddCounterData">Add measurement</button>
-                <!--<form action="#"
-                      th:action="@{/api/evaluation/{project}/{counter}/{period}/evaluateSimple(project=${project}, counter=${counter}, period=${period})}"
-                      method="post">-->
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Timestamp</th>
-                                <th scope="col">Counter value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="dataRow, dataIndex : ${counterData.counterData}">
-                                <th scope="row" th:text="${dataIndex.index}"></th>
-                                <td th:text="${#temporals.format(dataRow.timestamp, 'yyyy-MM-dd HH:mm')}"></td>
-                                <td th:text="${#numbers.formatDecimal(dataRow.value,1,2)}"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <!--<button type="submit" class="btn btn-primary">Evaluate simple</button>
-                </form>-->
-                <a th:href="@{/{project}/{counter}/{period}/evaluateSimple(project=${project}, counter=${counter}, period=${period})}" class="btn btn-primary" role="button" aria-pressed="true">Evaluate simple</a>
+                <a th:href="@{/{project}/{counter}/{period}/evaluateSimple(project=${project}, counter=${counter}, period=${period}, mode='Month')}" class="btn btn-primary" role="button" aria-pressed="true">Evaluate simple</a>
+
+                <div class="accordion accordion-flush" style="margin-top: 30px; margin-bottom: 30px;">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="flush-headingOne">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="true" aria-controls="flush-collapseOne">
+                                Graph
+                            </button>
+                        </h2>
+                        <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">
+                                <div id="myGraph"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Timestamp</th>
+                            <th scope="col">Counter value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="dataRow, dataIndex : ${counterData.counterData}">
+                            <th scope="row" th:text="${dataIndex.index}"></th>
+                            <td th:text="${#temporals.format(dataRow.timestamp, 'yyyy-MM-dd HH:mm')}"></td>
+                            <td th:text="${#numbers.formatDecimal(dataRow.value,1,2)}"></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -40,25 +51,26 @@
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="#" th:action="@{'/api/counterData/' + ${project} + '/' + ${counter} + '/' + ${period} + '/addCounterData'}"
+                    <form action="#" th:action="@{/api/counterData/{project}/{counter}/{period}/addCounterData(project=${project}, counter=${counter}, period=${period})}"
                           th:object="${newCounterValue}" method="post">
                         <div class="modal-header">
                             <h5 class="modal-title" id="modalLabelHighlight">Add counter data</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
+                            <!--
                             <div class="invisible">
                                 <input type="hidden" class="form-control" id="project" th:value="${project}"/>
                                 <input type="hidden" class="form-control" id="counter" th:value="${counter}"/>
                                 <input type="hidden" class="form-control" id="period" th:value="${period}"/>
                             </div>
+                            -->
                             <div class="row mb-3">
                                 <div class="col">
                                     <label for="addCounterDataTimestamp" class="col-form-label">Timestamp</label>
                                 </div>
                                 <div class="col">
                                     <input type="datetime-local" class="form-control" id="addCounterDataTimestamp" th:field="*{timestamp}" >
-                                    <!-- th:value="${newCounterValue.timestamp}"-->
                                 </div>
                             </div>
                             <div class="row mb-3">
@@ -83,5 +95,28 @@
     <div th:replace="fragments/footer.html :: footer"></div>
 
     <script src="/js/counterData.js" th:href="@{/js/counterData.js}"></script>
+
+    <div>
+        <script src="/js/d3.js" th:href="@{/js/d3.js}"></script>
+        <script src="/js/counterDataD3.js" th:href="@{/js/counterDataD3.js}"></script>
+
+        <script th:inline="javascript">
+            let myData = [[${counterData.counterData}]];
+
+            let timeParse = d3.timeParse("%Y-%m-%dT%H:%M:%S");
+
+            let chart = LineChart(myData, {
+                x: d => timeParse(d.timestamp),
+                y: d => d.value,
+                yLabel: "Consumption",
+                xLabel: "Time",
+                width: d3.select("#dataTable").style("width").slice(0, -2),
+                height: 500,
+                color: "steelblue"
+            })
+
+            document.getElementById("myGraph").appendChild(chart);
+        </script>
+    </div>
 </body>
 </html>
