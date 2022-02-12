@@ -36,11 +36,12 @@ public class CsvService {
             for (final CSVRecord record : records) {
                 final String timestampString = record.get("timestamp");
                 final String counterValueString = record.get("value");
+                final String comment = record.get("comment");
 
                 final LocalDateTime datetime = LocalDateTime.parse(timestampString);
                 final double counterValue = Double.parseDouble(counterValueString);
 
-                result.add(new RawCounterDataRow(datetime, counterValue));
+                result.add(new RawCounterDataRow(datetime, counterValue, comment));
             }
             dataFileReader.close();
         }
@@ -54,6 +55,7 @@ public class CsvService {
         final List<String> headers = new ArrayList<>();
         headers.add("timestamp");
         headers.add("value");
+        headers.add("comment");
 
         try (CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT.builder()
                 .setHeader(headers.toArray(String[]::new))
@@ -64,6 +66,7 @@ public class CsvService {
                 final List<String> rowData = new ArrayList<>();
                 rowData.add(row.timestamp().toString());
                 rowData.add(Double.toString(row.value()));
+                rowData.add(row.comment());
                 try {
                     printer.printRecord(rowData);
                 }

@@ -34,6 +34,7 @@
                             <th scope="col">#</th>
                             <th scope="col">Timestamp</th>
                             <th scope="col">Counter value</th>
+                            <th scope="col">Comment</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,6 +42,7 @@
                             <th scope="row" th:text="${dataIndex.index}"></th>
                             <td th:text="${#temporals.format(dataRow.timestamp, 'yyyy-MM-dd HH:mm')}"></td>
                             <td th:text="${#numbers.formatDecimal(dataRow.value,1,2)}"></td>
+                            <td th:text="${dataRow.comment ne null} ? ${dataRow.comment} : '-'"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -51,7 +53,7 @@
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="#" th:action="@{/api/counterData/{project}/{counter}/addCounterData(project=${project}, counter=${counter}, periodFrom=${periodFrom}, periodUntil=${periodUntil})}"
+                    <form action="#" th:action="@{/api/counter/addCounterData/{project}/{counter}(project=${project}, counter=${counter}, periodFrom=${periodFrom}, periodUntil=${periodUntil})}"
                           th:object="${newCounterValue}" method="post">
                         <div class="modal-header">
                             <h5 class="modal-title" id="modalLabelHighlight">Add counter data</h5>
@@ -71,7 +73,15 @@
                                     <label for="counterValue" class="col-form-label">Counter value</label>
                                 </div>
                                 <div class="col">
-                                    <input type="number" min="0.01" step="0.01" class="form-control" id="counterValue" th:field="*{value}">
+                                    <input type="number" min="0.00" step="0.01" class="form-control" id="counterValue" th:field="*{value}">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="comment" class="col-form-label">Comment</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" class="form-control" id="comment" th:field="*{comment}">
                                 </div>
                             </div>
                             <div class="modal-footer">

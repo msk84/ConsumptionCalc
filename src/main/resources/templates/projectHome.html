@@ -16,10 +16,42 @@
                     </li>
                 </ul>
             </div>
+
+            <button id="addCounterButton" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddCounter">Add Counter</button>
+
+            <div class="modal fade" id="AddCounter" tabindex="-1" aria-labelledby="AddCounter" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form action="#" th:action="@{/api/counter/add}" th:object="${newCounter}" method="post">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalLabelHighlight">Add counter</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" id="project" th:field="*{project}">
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <label for="counterName" class="col-form-label">Counter name</label>
+                                    </div>
+                                    <div class="col">
+                                        <input type="text" class="form-control" id="counterName" th:field="*{counterName}">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Add</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
     <div th:replace="fragments/footer.html :: footer"></div>
+
+    <script src="/js/projectHome.js" th:href="@{/js/projectHome.js}"></script>
 
 </body>
 </html>

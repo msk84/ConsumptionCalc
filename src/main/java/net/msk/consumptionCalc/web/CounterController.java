@@ -1,5 +1,6 @@
 package net.msk.consumptionCalc.web;
 
+import net.msk.consumptionCalc.model.clientDto.CounterDto;
 import net.msk.consumptionCalc.service.DataService;
 import net.msk.consumptionCalc.model.RawCounterDataRow;
 import net.msk.consumptionCalc.model.clientDto.CounterMeasurementDto;
@@ -12,17 +13,31 @@ import org.springframework.web.servlet.ModelAndView;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/api/counterData")
-public class CounterDataController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CounterDataController.class);
+@RequestMapping("/api/counter")
+public class CounterController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CounterController.class);
 
     private final DataService dataService;
 
-    public CounterDataController(final DataService dataService) {
+    public CounterController(final DataService dataService) {
         this.dataService = dataService;
     }
 
-    @PostMapping("/{project}/{counter}/addCounterData")
+    @PostMapping("/add")
+    public ModelAndView addCounter(@ModelAttribute CounterDto counterDto) {
+
+        try {
+            this.dataService.addCounter(counterDto.getProject(), counterDto.getCounterName());
+            return new ModelAndView("redirect:/" + counterDto.getProject());
+        }
+        catch(final DataPersistanceException e) {
+            LOGGER.error("Failed to add new counter.", e);
+        }
+
+        return new ModelAndView("redirect:/error");
+    }
+
+    @PostMapping("/addCounterData/{project}/{counter}")
     public ModelAndView addCounterData(@PathVariable("project") final String project,
                                        @PathVariable("counter") final String counter,
                                        @RequestParam(name = "periodFrom", required = false) Integer periodFrom,
@@ -30,7 +45,7 @@ public class CounterDataController {
                                        @ModelAttribute CounterMeasurementDto counterData) {
 
         try {
-            this.dataService.addCounterData(project, counter, new RawCounterDataRow(LocalDateTime.parse(counterData.getTimestamp()), counterData.getValue()));
+            this.dataService.addCounterData(project, counter, new RawCounterDataRow(LocalDateTime.parse(counterData.getTimestamp()), counterData.getValue(), counterData.getComment()));
             return new ModelAndView("redirect:/" + project + "/" + counter + "/counterData?periodFrom=" + periodFrom + "&periodUntil=" + periodUntil);
         }
         catch (final DataPersistanceException e) {

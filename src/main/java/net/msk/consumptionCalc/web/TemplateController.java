@@ -2,6 +2,8 @@ package net.msk.consumptionCalc.web;
 
 import net.msk.consumptionCalc.model.EvaluationMode;
 import net.msk.consumptionCalc.model.Project;
+import net.msk.consumptionCalc.model.clientDto.CounterDto;
+import net.msk.consumptionCalc.model.clientDto.ProjectDto;
 import net.msk.consumptionCalc.service.DataService;
 import net.msk.consumptionCalc.persistence.file.FileSystemService;
 import net.msk.consumptionCalc.model.EvaluationData;
@@ -39,6 +41,7 @@ public class TemplateController {
 
         try {
             projectList = this.fileSystemService.getProjects();
+            model.addAttribute("newProject", new ProjectDto());
             model.addAttribute("projects", projectList);
             return "index";
         } catch (final Exception e) {
@@ -47,7 +50,7 @@ public class TemplateController {
         }
     }
 
-    @GetMapping("/{project}/")
+    @GetMapping("/{project}")
     public String projectHome(@PathVariable("project") final String project, final Model model) {
         final List<String> counterList;
 
@@ -59,6 +62,7 @@ public class TemplateController {
         }
 
         model.addAttribute("project", project);
+        model.addAttribute("newCounter", new CounterDto(project));
         model.addAttribute("counters", counterList);
 
         return "projectHome";
@@ -82,7 +86,7 @@ public class TemplateController {
             model.addAttribute("periodFrom", periodFrom);
             model.addAttribute("periodUntil", periodUntil);
             model.addAttribute("counterData", rawCounterData);
-            model.addAttribute("newCounterValue", new CounterMeasurementDto(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), 0.0));
+            model.addAttribute("newCounterValue", new CounterMeasurementDto(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), 0.0, ""));
 
             return "counterData";
         } catch (final Exception e) {

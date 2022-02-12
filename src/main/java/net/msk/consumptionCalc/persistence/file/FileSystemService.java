@@ -62,26 +62,23 @@ public class FileSystemService {
         return this.ensureFolder(dataFolder);
     }
 
-    public Path getEvaluationFolder(final String project) throws IOException {
-        this.ensureFolder(this.baseFolderPath);
-        this.ensureFolder(this.projectsFolderPath);
-        final Path projectPath = this.projectsFolderPath.resolve(project);
-        this.ensureFolder(projectPath);
-        final Path evalFolder = projectPath.resolve("evaluation");
-        return this.ensureFolder(evalFolder);
-    }
-
     private Path getCounterFolder(final String project, final String counter) throws IOException {
         final Path dataFolder = this.getDataFolder(project);
         final Path counterFolder = dataFolder.resolve(counter);
         return this.ensureFolder(counterFolder);
     }
 
+    public void addProject(final String name) throws IOException {
+        this.ensureFolder(this.projectsFolderPath.resolve(name));
+    }
+
+    /*
     public List<String> getProjectList() throws IOException {
         this.ensureFolder(this.baseFolderPath);
         this.ensureFolder(this.projectsFolderPath);
         return this.getFolderList(this.projectsFolderPath);
     }
+    */
 
     public List<Project> getProjects() throws IOException {
         this.ensureFolder(this.baseFolderPath);
@@ -96,9 +93,17 @@ public class FileSystemService {
         return result;
     }
 
+    public void addCounter(final String project, final String counterName) throws IOException {
+        this.ensureFolder(this.getDataFolder(project).resolve(counterName));
+    }
+
     public List<String> getCounterList(final String project) throws IOException {
         final Path dataFolder = this.getDataFolder(project);
         return this.getFolderList(dataFolder);
+    }
+
+    public Path getRawDataFilePathForYear(final String project, final String counter, final Integer year) throws IOException {
+        return this.getCounterFolder(project, counter).resolve(year + ".csv");
     }
 
     public List<Path> getRawDataFiles(final String project, final String counter, final Integer periodFrom, final Integer periodUntil) throws IOException {

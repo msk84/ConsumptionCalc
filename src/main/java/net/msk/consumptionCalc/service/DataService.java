@@ -32,11 +32,30 @@ public class DataService {
         this.evaluationService = evaluationService;
     }
 
+    public void addProject(final String name) throws DataPersistanceException {
+        try {
+            this.fileSystemService.addProject(name);
+        }
+        catch (final IOException e) {
+            throw new DataPersistanceException("Failed to create project folder.", e);
+        }
+    }
+
+    public void addCounter(final String project, final String counterName) throws DataPersistanceException {
+        try {
+            this.fileSystemService.addCounter(project, counterName);
+        }
+        catch (final IOException e) {
+            throw new DataPersistanceException("Failed to create counter folder.", e);
+        }
+    }
+
     public RawCounterData getRawCounterData(final String project, final String counter, final Integer periodFrom, final Integer periodUntil) throws DataLoadingException {
         try {
             final List<Path> dataFilePaths = this.fileSystemService.getRawDataFiles(project, counter, periodFrom, periodUntil);
             return this.csvService.loadRawCounterData(dataFilePaths);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             throw new DataLoadingException("Failed to load rawCounterData.", e);
         }
     }
@@ -45,19 +64,28 @@ public class DataService {
         try {
             final Integer year = rawCounterDataRow.timestamp().getYear();
             final List<Path> dataFilePaths = this.fileSystemService.getRawDataFiles(project, counter, year, year);
-            final RawCounterData rawCounterData = this.csvService.loadRawCounterData(dataFilePaths);
-            rawCounterData.counterData().add(rawCounterDataRow);
-            final List<RawCounterDataRow> sortedList = rawCounterData.counterData().stream()
-                    .sorted(Comparator.comparing(RawCounterDataRow::timestamp))
-                    .toList();
 
-            final RawCounterData newRawCounterData = new RawCounterData(sortedList);
-            this.csvService.persistRawCounterData(dataFilePaths.get(0), newRawCounterData);
+            final RawCounterData newRawCounterData;
+            if(dataFilePaths.isEmpty()) {
+                newRawCounterData = new RawCounterData();
+                newRawCounterData.counterData().add(rawCounterDataRow);
+            }
+            else {
+                final RawCounterData rawCounterData = this.csvService.loadRawCounterData(dataFilePaths);
+                rawCounterData.counterData().add(rawCounterDataRow);
+                final List<RawCounterDataRow> sortedList = rawCounterData.counterData().stream()
+                        .sorted(Comparator.comparing(RawCounterDataRow::timestamp))
+                        .toList();
+                newRawCounterData = new RawCounterData(sortedList);
+            }
+
+            this.csvService.persistRawCounterData(this.fileSystemService.getRawDataFilePathForYear(project, counter, year), newRawCounterData);
         }
         catch (final IOException e) {
             throw new DataPersistanceException("Failed to addCounterData.", e);
         }
     }
+
     public EvaluationData evaluateSimple(final String project, final String counter, final Integer periodFrom, final Integer periodUntil, final EvaluationMode evaluationMode) throws DataLoadingException {
         final RawCounterData rawCounterData = this.getRawCounterData(project, counter, periodFrom, periodUntil);
         return this.evaluationService.evaluateSimple(project, rawCounterData, evaluationMode);
