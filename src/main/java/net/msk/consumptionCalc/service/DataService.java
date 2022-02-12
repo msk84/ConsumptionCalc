@@ -1,9 +1,6 @@
 package net.msk.consumptionCalc.service;
 
-import net.msk.consumptionCalc.model.EvaluationData;
-import net.msk.consumptionCalc.model.EvaluationMode;
-import net.msk.consumptionCalc.model.RawCounterData;
-import net.msk.consumptionCalc.model.RawCounterDataRow;
+import net.msk.consumptionCalc.model.*;
 import net.msk.consumptionCalc.persistence.file.CsvService;
 import net.msk.consumptionCalc.persistence.file.FileSystemService;
 import net.msk.consumptionCalc.service.exception.DataLoadingException;
@@ -41,12 +38,22 @@ public class DataService {
         }
     }
 
-    public void addCounter(final String project, final String counterName) throws DataPersistanceException {
+    public void addCounter(final String project, final String counterName, final Unit counterUnit) throws DataPersistanceException {
         try {
-            this.fileSystemService.addCounter(project, counterName);
+            final Counter counter = new Counter(counterName, counterUnit);
+            this.fileSystemService.addCounter(project, counter);
         }
         catch (final IOException e) {
-            throw new DataPersistanceException("Failed to create counter folder.", e);
+            throw new DataPersistanceException("Failed to create counter.", e);
+        }
+    }
+
+    public List<Counter> getCounterList(final String project) throws DataLoadingException {
+        try {
+            return this.fileSystemService.getCounterList(project);
+        }
+        catch (final IOException e) {
+            throw new DataLoadingException("Failed to load counter list.", e);
         }
     }
 

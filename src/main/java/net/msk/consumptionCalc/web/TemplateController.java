@@ -1,13 +1,10 @@
 package net.msk.consumptionCalc.web;
 
-import net.msk.consumptionCalc.model.EvaluationMode;
-import net.msk.consumptionCalc.model.Project;
+import net.msk.consumptionCalc.model.*;
 import net.msk.consumptionCalc.model.clientDto.CounterDto;
 import net.msk.consumptionCalc.model.clientDto.ProjectDto;
 import net.msk.consumptionCalc.service.DataService;
 import net.msk.consumptionCalc.persistence.file.FileSystemService;
-import net.msk.consumptionCalc.model.EvaluationData;
-import net.msk.consumptionCalc.model.RawCounterData;
 import net.msk.consumptionCalc.model.clientDto.CounterMeasurementDto;
 import net.msk.consumptionCalc.service.exception.DataLoadingException;
 import org.slf4j.Logger;
@@ -52,10 +49,10 @@ public class TemplateController {
 
     @GetMapping("/{project}")
     public String projectHome(@PathVariable("project") final String project, final Model model) {
-        final List<String> counterList;
+        final List<Counter> counterList;
 
         try {
-            counterList = this.fileSystemService.getCounterList(project);
+            counterList = this.dataService.getCounterList(project);
         } catch (final Exception e) {
             LOGGER.error("Failed loading counterList for project '{}'.", project, e);
             return "error";

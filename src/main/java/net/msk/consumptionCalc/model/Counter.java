@@ -1,4 +1,6 @@
 package net.msk.consumptionCalc.model;
 
-public record Counter(String counterName) {
+import java.io.Serializable;
+
+public record Counter(String counterName, Unit unit) implements Serializable {
 }

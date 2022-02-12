@@ -19,7 +19,7 @@
                                 </h5>
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item" th:each="counter : ${project.counters}">
-                                        <a th:text="${counter}" th:href="@{/{project}/{counter}/counterData(project=${project.projectName}, counter=${counter})}"></a>
+                                        <a th:text="${counter.counterName}" th:href="@{/{project}/{counter}/counterData(project=${project.projectName}, counter=${counter.counterName})}"></a>
                                     </li>
                                 </ul>
                             </div>

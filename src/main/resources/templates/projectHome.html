@@ -12,7 +12,7 @@
                 <h2>Counters</h2>
                 <ul>
                     <li th:each="counter : ${counters}">
-                        <a th:href="@{/{project}/{counter}/counterData(project=${project}, counter=${counter})}" th:text="${counter}"></a>
+                        <a th:href="@{/{project}/{counter}/counterData(project=${project}, counter=${counter.counterName})}" th:text="${counter.counterName}"></a>
                     </li>
                 </ul>
             </div>
@@ -35,6 +35,17 @@
                                     </div>
                                     <div class="col">
                                         <input type="text" class="form-control" id="counterName" th:field="*{counterName}">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <label for="unit" class="col-form-label">Unit</label>
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-select" aria-label="Default select example" id="unit" th:field="*{unit}">
+                                            <option value="m3">m³</option>
+                                            <option value="kWh">kWh</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="modal-footer">

@@ -1,12 +1,13 @@
 package net.msk.consumptionCalc.persistence.file;
 
+import net.msk.consumptionCalc.model.Counter;
 import net.msk.consumptionCalc.model.Project;
+import net.msk.consumptionCalc.model.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -72,14 +73,6 @@ public class FileSystemService {
         this.ensureFolder(this.projectsFolderPath.resolve(name));
     }
 
-    /*
-    public List<String> getProjectList() throws IOException {
-        this.ensureFolder(this.baseFolderPath);
-        this.ensureFolder(this.projectsFolderPath);
-        return this.getFolderList(this.projectsFolderPath);
-    }
-    */
-
     public List<Project> getProjects() throws IOException {
         this.ensureFolder(this.baseFolderPath);
         this.ensureFolder(this.projectsFolderPath);
@@ -87,19 +80,45 @@ public class FileSystemService {
 
         final List<Project> result = new ArrayList<>();
         for(final String project : projectFolders) {
-            final List<String> counterList = this.getCounterList(project);
+            final List<Counter> counterList = this.getCounterList(project);
             result.add(new Project(project, counterList));
         }
         return result;
     }
 
-    public void addCounter(final String project, final String counterName) throws IOException {
-        this.ensureFolder(this.getDataFolder(project).resolve(counterName));
+    public void addCounter(final String project, final Counter counter) throws IOException {
+        this.ensureFolder(this.getCounterFolder(project, counter.counterName()));
+
+        final Path counterFolder = this.getCounterFolder(project, counter.counterName()).resolve("counter.info");
+        final FileOutputStream f = new FileOutputStream(counterFolder.toFile());
+        final ObjectOutputStream o = new ObjectOutputStream(f);
+        o.writeObject(counter);
+        o.close();
+        f.close();
     }
 
-    public List<String> getCounterList(final String project) throws IOException {
+    public List<Counter> getCounterList(final String project) throws IOException {
         final Path dataFolder = this.getDataFolder(project);
-        return this.getFolderList(dataFolder);
+        final List<String> counterFolders = this.getFolderList(dataFolder);
+        final List<Counter> result = new ArrayList<>();
+        counterFolders.forEach(c -> {
+            try {
+                final Counter counter = this.getCounter(project, c);
+                result.add(counter);
+            }
+            catch (final IOException | ClassNotFoundException e) {
+                LOGGER.error("Failed to read counter.info.", e);
+            }
+        });
+        return result;
+    }
+
+    public Counter getCounter(final String project, final String counterName) throws IOException, ClassNotFoundException {
+        final Path counterFolder = this.getCounterFolder(project, counterName).resolve("counter.info");
+        final FileInputStream fis = new FileInputStream(counterFolder.toString());
+        final ObjectInputStream ois = new ObjectInputStream(fis);
+        final Counter counter = (Counter) ois.readObject();
+        return counter;
     }
 
     public Path getRawDataFilePathForYear(final String project, final String counter, final Integer year) throws IOException {
@@ -112,6 +131,8 @@ public class FileSystemService {
         try (Stream<Path> walk = Files.walk(counterFolder)) {
             result = walk
                     .filter(p -> !Files.isDirectory(p))
+                    .filter(Files::isReadable)
+                    .filter(p -> !p.toFile().getName().equals("counter.info"))
                     .filter(p -> this.filterDataFiles(p, periodFrom, periodUntil))
                     .collect(Collectors.toList());
         }

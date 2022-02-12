@@ -1,9 +1,12 @@
 package net.msk.consumptionCalc.model.clientDto;
 
+import net.msk.consumptionCalc.model.Unit;
+
 public class CounterDto {
 
     private String project;
     private String counterName;
+    private Unit unit;
 
     public CounterDto() {
     }
@@ -12,9 +15,10 @@ public class CounterDto {
         this.project = project;
     }
 
-    public CounterDto(final String project, final String counterName) {
+    public CounterDto(final String project, final String counterName, final Unit unit) {
         this.project = project;
         this.counterName = counterName;
+        this.unit = unit;
     }
 
     public String getProject() {
@@ -31,5 +35,13 @@ public class CounterDto {
 
     public void setCounterName(String counterName) {
         this.counterName = counterName;
+    }
+
+    public Unit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(Unit unit) {
+        this.unit = unit;
     }
 }

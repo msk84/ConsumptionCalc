@@ -25,7 +25,7 @@ public class ProjectController {
 
         try {
             this.dataService.addProject(project.getProjectName());
-            return new ModelAndView("redirect:/");
+            return new ModelAndView("redirect:/" + project.getProjectName());
         }
         catch (final DataPersistanceException e) {
             LOGGER.error("Failed to add new project.", e);

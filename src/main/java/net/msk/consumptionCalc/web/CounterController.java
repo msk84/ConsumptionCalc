@@ -27,7 +27,7 @@ public class CounterController {
     public ModelAndView addCounter(@ModelAttribute CounterDto counterDto) {
 
         try {
-            this.dataService.addCounter(counterDto.getProject(), counterDto.getCounterName());
+            this.dataService.addCounter(counterDto.getProject(), counterDto.getCounterName(), counterDto.getUnit());
             return new ModelAndView("redirect:/" + counterDto.getProject());
         }
         catch(final DataPersistanceException e) {
