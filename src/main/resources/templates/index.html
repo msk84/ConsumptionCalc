@@ -9,53 +9,50 @@
             <div class="container-fluid">
                 <h1 class="display-3">Welcome to ConsumptionCalc.</h1>
 
-                <h2>Projects</h2>
+                <h2 th:text="#{projects}"></h2>
                 <div class="row">
                     <div class="col-sm-6">
                         <div class="card" th:each="project : ${projects}">
+                            <div class="card-header">
+                                <a class="btn btn-outline-primary" role="button" aria-disabled="true" th:text="${project.projectName}" th:href="@{/{project}(project=${project.projectName})}"></a>
+                            </div>
                             <div class="card-body">
-                                <h5 class="card-title">
-                                    <a th:text="${project.projectName}" th:href="@{/{project}(project=${project.projectName})}"></a>
-                                </h5>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item" th:each="counter : ${project.counters}">
-                                        <a th:text="${counter.counterName}" th:href="@{/{project}/{counter}/counterData(project=${project.projectName}, counter=${counter.counterName})}"></a>
-                                    </li>
-                                </ul>
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item list-group-item-action" th:each="counter : ${project.counters}" th:text="${counter.counterName}" th:href="@{/{project}/{counter}/counterData(project=${project.projectName}, counter=${counter.counterName})}"></a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <button id="addProjectButton" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddProject">Add Project</button>
+                <button id="addProjectButton" type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#AddProject">Add Project</button>
+            </div>
 
-                <div class="modal fade" id="AddProject" tabindex="-1" aria-labelledby="AddProject" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <form action="#" th:action="@{/api/project/add}" th:object="${newProject}" method="post">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="modalLabelHighlight">Add project</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row mb-3">
-                                        <div class="col">
-                                            <label for="projectName" class="col-form-label">Project name</label>
-                                        </div>
-                                        <div class="col">
-                                            <input type="text" class="form-control" id="projectName" th:field="*{projectName}">
-                                        </div>
+            <div class="modal fade" id="AddProject" tabindex="-1" aria-labelledby="AddProject" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form action="#" th:action="@{/api/project/add}" th:object="${newProject}" method="post">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalLabelHighlight">Add project</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <label for="projectName" class="col-form-label">Project name</label>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="submit" class="btn btn-primary">Add</button>
+                                    <div class="col">
+                                        <input type="text" class="form-control" id="projectName" th:field="*{projectName}">
                                     </div>
                                 </div>
-                            </form>
-                        </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Add</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
-
             </div>
         </div>
     </main>

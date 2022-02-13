@@ -8,10 +8,10 @@
         <div class="container">
             <div class="container-fluid">
                 <h1 class="display-3" th:text="${project}"></h1>
-                <h2 th:text="${counter}"></h2>
+                <h2 th:text="${counter.counterName}"></h2>
 
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddCounterData">Add measurement</button>
-                <a th:href="@{/{project}/{counter}/evaluateSimple(project=${project}, counter=${counter}, periodFrom=${periodFrom}, periodUntil=${periodUntil}, mode='Month')}" class="btn btn-primary" role="button" aria-pressed="true">Evaluate simple</a>
+                <a th:href="@{/{project}/{counter}/evaluateSimple(project=${project}, counter=${counter.counterName}, periodFrom=${periodFrom}, periodUntil=${periodUntil}, mode='Month')}" class="btn btn-primary" role="button" aria-pressed="true">Evaluate simple</a>
 
                 <div class="accordion accordion-flush" style="margin-top: 30px; margin-bottom: 30px;">
                     <div class="accordion-item">
@@ -33,7 +33,7 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Timestamp</th>
-                            <th scope="col">Counter value</th>
+                            <th scope="col" th:text="'Counter value (' + ${counter.unit.toString()} + ')'">Counter value</th>
                             <th scope="col">Comment</th>
                         </tr>
                     </thead>
@@ -53,7 +53,7 @@
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="#" th:action="@{/api/counter/addCounterData/{project}/{counter}(project=${project}, counter=${counter}, periodFrom=${periodFrom}, periodUntil=${periodUntil})}"
+                    <form action="#" th:action="@{/api/counter/addCounterData/{project}/{counter}(project=${project}, counter=${counter.counterName}, periodFrom=${periodFrom}, periodUntil=${periodUntil})}"
                           th:object="${newCounterValue}" method="post">
                         <div class="modal-header">
                             <h5 class="modal-title" id="modalLabelHighlight">Add counter data</h5>

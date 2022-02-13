@@ -4,7 +4,6 @@ import net.msk.consumptionCalc.model.*;
 import net.msk.consumptionCalc.model.clientDto.CounterDto;
 import net.msk.consumptionCalc.model.clientDto.ProjectDto;
 import net.msk.consumptionCalc.service.DataService;
-import net.msk.consumptionCalc.persistence.file.FileSystemService;
 import net.msk.consumptionCalc.model.clientDto.CounterMeasurementDto;
 import net.msk.consumptionCalc.service.exception.DataLoadingException;
 import org.slf4j.Logger;
@@ -24,24 +23,24 @@ public class TemplateController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TemplateController.class);
 
-    private final FileSystemService fileSystemService;
     private final DataService dataService;
 
-    public TemplateController(final FileSystemService fileSystemService, final DataService dataService) {
-        this.fileSystemService = fileSystemService;
+    public TemplateController(final DataService dataService) {
         this.dataService = dataService;
     }
 
     @GetMapping("/")
-    public String homePage(final Model model) {
+    public String home(final Model model) {
         final List<Project> projectList;
 
         try {
-            projectList = this.fileSystemService.getProjects();
+            projectList = this.dataService.getProjectList();
             model.addAttribute("newProject", new ProjectDto());
             model.addAttribute("projects", projectList);
+
             return "index";
-        } catch (final Exception e) {
+        }
+        catch (final DataLoadingException e) {
             LOGGER.error("Failed loading projectList.", e);
             return "error";
         }
@@ -53,7 +52,8 @@ public class TemplateController {
 
         try {
             counterList = this.dataService.getCounterList(project);
-        } catch (final Exception e) {
+        }
+        catch (final DataLoadingException e) {
             LOGGER.error("Failed loading counterList for project '{}'.", project, e);
             return "error";
         }
@@ -66,8 +66,8 @@ public class TemplateController {
     }
 
     @GetMapping("/{project}/{counter}/counterData")
-    public String counterHome(@PathVariable("project") final String project,
-                              @PathVariable("counter") final String counter,
+    public String counterHome(@PathVariable("project") final String projectName,
+                              @PathVariable("counter") final String counterName,
                               @RequestParam(name = "periodFrom", required = false) Integer periodFrom,
                               @RequestParam(name = "periodUntil", required = false) Integer periodUntil,
                               final Model model) {
@@ -76,9 +76,11 @@ public class TemplateController {
         try {
             periodFrom = periodFrom == null ? 2020 : periodFrom;
             periodUntil = periodUntil == null ? 2030 : periodUntil;
-            rawCounterData = this.dataService.getRawCounterData(project, counter, periodFrom, periodUntil);
 
-            model.addAttribute("project", project);
+            rawCounterData = this.dataService.getRawCounterData(projectName, counterName, periodFrom, periodUntil);
+            final Counter counter = this.dataService.getCounter(projectName, counterName);
+
+            model.addAttribute("project", projectName);
             model.addAttribute("counter", counter);
             model.addAttribute("periodFrom", periodFrom);
             model.addAttribute("periodUntil", periodUntil);
@@ -86,15 +88,16 @@ public class TemplateController {
             model.addAttribute("newCounterValue", new CounterMeasurementDto(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), 0.0, ""));
 
             return "counterData";
-        } catch (final Exception e) {
-            LOGGER.error("Failed loading counter data for project '{}' and counter '{}' in periodFrom '{}' - periodUntil '{}'.", project, counter, periodFrom, periodUntil, e);
+        }
+        catch (final DataLoadingException e) {
+            LOGGER.error("Failed loading counter data for project '{}' and counter '{}' in periodFrom '{}' - periodUntil '{}'.", projectName, counterName, periodFrom, periodUntil, e);
             return "error";
         }
     }
 
     @GetMapping("/{project}/{counter}/evaluateSimple")
-    public String evaluateSimple(@PathVariable("project") final String project,
-                                 @PathVariable("counter") final String counter,
+    public String evaluateSimple(@PathVariable("project") final String projectName,
+                                 @PathVariable("counter") final String counterName,
                                  @RequestParam(name = "periodFrom", required = false) Integer periodFrom,
                                  @RequestParam(name = "periodUntil", required = false) Integer periodUntil,
                                  @RequestParam(name = "mode", required = false) final String mode,
@@ -104,18 +107,23 @@ public class TemplateController {
             final EvaluationMode evaluationMode;
             if (mode != null) {
                 evaluationMode = EvaluationMode.valueOf(mode);
-            } else {
+            }
+            else {
                 evaluationMode = EvaluationMode.Timeframe;
             }
 
-            final EvaluationData evaluationData = this.dataService.evaluateSimple(project, counter, periodFrom, periodUntil, evaluationMode);
-            model.addAttribute("project", project);
+            final EvaluationData evaluationData = this.dataService.getSimpleEvaluationResult(projectName, counterName, periodFrom, periodUntil, evaluationMode);
+            final Counter counter = this.dataService.getCounter(projectName, counterName);
+
+            model.addAttribute("project", projectName);
+            model.addAttribute("counter", counter);
             model.addAttribute("evaluationData", evaluationData);
             model.addAttribute("periodFrom", periodFrom);
             model.addAttribute("periodUntil", periodUntil);
 
-            return "evaluationResultData";
-        } catch (final DataLoadingException e) {
+            return "evaluationResult";
+        }
+        catch (final DataLoadingException e) {
             LOGGER.error("Failed to evaluate simple.", e);
             return "error";
         }

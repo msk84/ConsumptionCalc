@@ -1,4 +1,4 @@
 package net.msk.consumptionCalc.model;
 
-public record EvaluationColumn(String header) {
+public record EvaluationColumn(String headerQualifier) {
 }

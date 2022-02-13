@@ -10,10 +10,10 @@
                 <h1>Evaluation result</h1>
                 <ul class="nav nav-tabs">
                     <li class="nav-item">
-                        <a class="nav-link" th:classappend="${#strings.equals(evaluationData.evaluationMode, 'Month')} ? 'active' : ''" aria-current="page" th:href="@{/{project}/{counter}/evaluateSimple(project=${project}, counter=${counter}, periodFrom=${periodFrom}, periodUntil=${periodUntil}, mode='Month')}">Month</a>
+                        <a class="nav-link" th:classappend="${#strings.equals(evaluationData.evaluationMode, 'Month')} ? 'active' : ''" aria-current="page" th:href="@{/{project}/{counter}/evaluateSimple(project=${project}, counter=${counter.counterName}, periodFrom=${periodFrom}, periodUntil=${periodUntil}, mode='Month')}">Month</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" th:classappend="${#strings.equals(evaluationData.evaluationMode, 'Timeframe')} ? 'active' : ''" th:href="@{/{project}/{counter}/evaluateSimple(project=${project}, counter=${counter}, periodFrom=${periodFrom}, periodUntil=${periodUntil}, mode='Timeframe')}">Timeframe</a>
+                        <a class="nav-link" th:classappend="${#strings.equals(evaluationData.evaluationMode, 'Timeframe')} ? 'active' : ''" th:href="@{/{project}/{counter}/evaluateSimple(project=${project}, counter=${counter.counterName}, periodFrom=${periodFrom}, periodUntil=${periodUntil}, mode='Timeframe')}">Timeframe</a>
                     </li>
                 </ul>
 
@@ -22,7 +22,7 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Timeframe</th>
-                            <th scope="col" th:each="column : ${evaluationData.evaluationColumns}" th:text="${column.header}"></th>
+                            <th scope="col" th:each="column : ${evaluationData.evaluationColumns}" th:text="#{columnHeaderWithUnit(#{${column.headerQualifier}}, ${counter.unit})}"></th>
                         </tr>
                     </thead>
                     <tbody>

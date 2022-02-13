@@ -55,9 +55,9 @@ public class EvaluationService {
         }
 
         final List<EvaluationColumn> columns = new ArrayList<>();
-        columns.add(new EvaluationColumn("Total"));
-        columns.add(new EvaluationColumn("per Day"));
-        columns.add(new EvaluationColumn("per Hour"));
+        columns.add(new EvaluationColumn("columnTotal"));
+        columns.add(new EvaluationColumn("columnPerDay"));
+        columns.add(new EvaluationColumn("columnPerHour"));
 
         final UUID evaluationUuid = UUID.randomUUID();
         return new EvaluationData(evaluationUuid, project, EvaluationMode.Timeframe, LocalDateTime.now(), columns, dataList);
@@ -130,9 +130,9 @@ public class EvaluationService {
         }
 
         final List<EvaluationColumn> columns = new ArrayList<>();
-        columns.add(new EvaluationColumn("Total"));
-        columns.add(new EvaluationColumn("per Day"));
-        columns.add(new EvaluationColumn("per Hour"));
+        columns.add(new EvaluationColumn("columnTotal"));
+        columns.add(new EvaluationColumn("columnPerDay"));
+        columns.add(new EvaluationColumn("columnPerHour"));
 
         final UUID evaluationUuid = UUID.randomUUID();
         return new EvaluationData(evaluationUuid, project, EvaluationMode.Month, LocalDateTime.now(), columns, dataList);
@@ -146,5 +146,4 @@ public class EvaluationService {
             return timestamp.plusHours(1).truncatedTo(ChronoUnit.HOURS);
         }
     }
-
 }

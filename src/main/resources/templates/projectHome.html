@@ -10,14 +10,12 @@
                 <h1 class="display-3" th:text="${project}"></h1>
 
                 <h2>Counters</h2>
-                <ul>
-                    <li th:each="counter : ${counters}">
-                        <a th:href="@{/{project}/{counter}/counterData(project=${project}, counter=${counter.counterName})}" th:text="${counter.counterName}"></a>
-                    </li>
-                </ul>
-            </div>
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action" th:each="counter : ${counters}" th:href="@{/{project}/{counter}/counterData(project=${project}, counter=${counter.counterName})}" th:text="${counter.counterName}"></a>
+                </div>
 
-            <button id="addCounterButton" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddCounter">Add Counter</button>
+                <button id="addCounterButton" type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#AddCounter">Add Counter</button>
+            </div>
 
             <div class="modal fade" id="AddCounter" tabindex="-1" aria-labelledby="AddCounter" aria-hidden="true">
                 <div class="modal-dialog">

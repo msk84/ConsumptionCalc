@@ -69,6 +69,8 @@ public class FileSystemService {
         return this.ensureFolder(counterFolder);
     }
 
+
+
     public void addProject(final String name) throws IOException {
         this.ensureFolder(this.projectsFolderPath.resolve(name));
     }

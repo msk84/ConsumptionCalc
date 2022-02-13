@@ -10,8 +10,11 @@
     * Length
     * Special chars
 * Error handing
+* Unit tests coverage
 * Graph
   * Make nice
   * Evaluation (multi line)
 * Price
 * Combination evaluation
+* API documentation
+** Swagger
