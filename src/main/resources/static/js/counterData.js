@@ -9,3 +9,10 @@ $(function(){
         $("#counterValue").focus();
     });
 });
+
+function showModalOnErrors(hasErrors) {
+    if(hasErrors) {
+        $('#AddCounterData').modal('show');
+        console.debug("Showing modal due to errors.");
+    }
+}

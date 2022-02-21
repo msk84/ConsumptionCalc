@@ -47,7 +47,7 @@ public class DataService {
         }
     }
 
-    public void addCounter(final String projectName, final String counterName, final Unit counterUnit) throws DataPersistanceException {
+    public void addCounter(final String projectName, final String counterName, final Unit counterUnit) throws DataPersistanceException, DataLoadingException {
         try {
             final Counter counter = new Counter(counterName, counterUnit);
             this.fileSystemService.addCounter(projectName, counter);
@@ -85,7 +85,7 @@ public class DataService {
         }
     }
 
-    public void addCounterData(final String projectName, final String counterName, final RawCounterDataRow rawCounterDataRow) throws DataPersistanceException {
+    public void addCounterData(final String projectName, final String counterName, final RawCounterDataRow rawCounterDataRow) throws DataPersistanceException, DataLoadingException {
         try {
             final Integer year = rawCounterDataRow.timestamp().getYear();
             final List<Path> dataFilePaths = this.fileSystemService.getRawDataFiles(projectName, counterName, year, year);

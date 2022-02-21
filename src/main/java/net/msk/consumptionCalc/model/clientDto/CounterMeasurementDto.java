@@ -1,9 +1,15 @@
 package net.msk.consumptionCalc.model.clientDto;
 
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
 public class CounterMeasurementDto {
 
     private String timestamp;
     private double value;
+
+    @Size(min=1, max=100)
+    @Pattern(regexp = "^[\\w\\d\\s-_]+$")
     private String comment;
 
     public CounterMeasurementDto() {

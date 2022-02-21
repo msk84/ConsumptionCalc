@@ -1,7 +1,7 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments/header.html :: header"></head>
-<body>
+<body th:onload="showModalOnErrors([[${#fields.hasErrors('${newCounter.*}')}]])">
     <div th:replace="fragments/navbar.html :: navbar"></div>
 
     <main role="main">
@@ -20,7 +20,7 @@
             <div class="modal fade" id="AddCounter" tabindex="-1" aria-labelledby="AddCounter" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form action="#" th:action="@{/api/counter/add}" th:object="${newCounter}" method="post">
+                        <form action="#" th:action="@{/{project}/addCounter(project=${project})}" th:object="${newCounter}" method="post">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="modalLabelHighlight">Add counter</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -33,6 +33,9 @@
                                     </div>
                                     <div class="col">
                                         <input type="text" class="form-control" id="counterName" th:field="*{counterName}">
+                                        <div class="alert alert-warning" th:if="${#fields.hasErrors('counterName')}">
+                                            Counter names may only contain characters, numbers, spaces, '_' or '-'.
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="row mb-3">
