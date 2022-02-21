@@ -33,7 +33,7 @@ public class FileSystemService {
     }
 
     private Path ensureFolder(final Path folderPath) throws IOException {
-        if(Files.exists(folderPath)) {
+        if (Files.exists(folderPath)) {
             return folderPath;
         }
         else {
@@ -58,18 +58,26 @@ public class FileSystemService {
         this.ensureFolder(this.baseFolderPath);
         this.ensureFolder(this.projectsFolderPath);
         final Path projectPath = this.projectsFolderPath.resolve(project);
-        this.ensureFolder(projectPath);
-        final Path dataFolder = projectPath.resolve("data");
-        return this.ensureFolder(dataFolder);
+        if (Files.exists(projectPath)) {
+            this.ensureFolder(projectPath);
+            final Path dataFolder = projectPath.resolve("data");
+            return this.ensureFolder(dataFolder);
+        }
+        else {
+            throw new DataLoadingException("Project folder path not found for project: " + project);
+        }
     }
 
     private Path getCounterFolder(final String project, final String counter) throws IOException, DataLoadingException {
         final Path dataFolder = this.getDataFolder(project);
         final Path counterFolder = dataFolder.resolve(counter);
-        return this.ensureFolder(counterFolder);
+        if(Files.exists(counterFolder)) {
+            return counterFolder;
+        }
+        else {
+            throw new DataLoadingException("Counter folder path not found for counter: " + counter + " in project: " + project);
+        }
     }
-
-
 
     public void addProject(final String name) throws IOException {
         this.ensureFolder(this.projectsFolderPath.resolve(name));
@@ -81,7 +89,7 @@ public class FileSystemService {
         final List<String> projectFolders = this.getFolderList(this.projectsFolderPath);
 
         final List<Project> result = new ArrayList<>();
-        for(final String project : projectFolders) {
+        for (final String project : projectFolders) {
             final List<Counter> counterList = this.getCounterList(project);
             result.add(new Project(project, counterList));
         }
@@ -89,7 +97,8 @@ public class FileSystemService {
     }
 
     public void addCounter(final String project, final Counter counter) throws IOException, DataLoadingException {
-        this.ensureFolder(this.getCounterFolder(project, counter.counterName()));
+        final Path dataFolder = this.getDataFolder(project);
+        this.ensureFolder(dataFolder.resolve(counter.counterName()));
 
         final Path counterFolder = this.getCounterFolder(project, counter.counterName()).resolve("counter.info");
         final FileOutputStream f = new FileOutputStream(counterFolder.toFile());
