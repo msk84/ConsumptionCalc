@@ -8,8 +8,8 @@ public class CounterMeasurementDto {
     private String timestamp;
     private double value;
 
-    @Size(min=1, max=100)
-    @Pattern(regexp = "^[\\w\\d\\s-_]+$")
+    @Size(min=0, max=100)
+    @Pattern(regexp = "^[\\w\\d\\s-_]*$")
     private String comment;
 
     public CounterMeasurementDto() {

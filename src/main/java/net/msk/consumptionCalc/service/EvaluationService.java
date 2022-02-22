@@ -64,7 +64,17 @@ public class EvaluationService {
     }
 
     private EvaluationData evaluateByMonth(final String project, final RawCounterData rawCounterData) {
+        final UUID evaluationUuid = UUID.randomUUID();
         final List<EvaluationDataRow> dataList = new ArrayList<>();
+        final List<EvaluationColumn> columns = new ArrayList<>();
+        columns.add(new EvaluationColumn("columnTotal"));
+        columns.add(new EvaluationColumn("columnPerDay"));
+        columns.add(new EvaluationColumn("columnPerHour"));
+
+        if(rawCounterData.counterData().size() == 0) {
+            return new EvaluationData(evaluationUuid, project, EvaluationMode.Month, LocalDateTime.now(), columns, dataList);
+        }
+
         final Map<String, Double> consumptionPerMonth = new LinkedHashMap<>();
 
         for(int i = 0; i < rawCounterData.counterData().size() - 1; i++) {
@@ -129,12 +139,6 @@ public class EvaluationService {
             i++;
         }
 
-        final List<EvaluationColumn> columns = new ArrayList<>();
-        columns.add(new EvaluationColumn("columnTotal"));
-        columns.add(new EvaluationColumn("columnPerDay"));
-        columns.add(new EvaluationColumn("columnPerHour"));
-
-        final UUID evaluationUuid = UUID.randomUUID();
         return new EvaluationData(evaluationUuid, project, EvaluationMode.Month, LocalDateTime.now(), columns, dataList);
     }
 

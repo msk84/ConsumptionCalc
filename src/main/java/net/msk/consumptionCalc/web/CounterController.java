@@ -14,12 +14,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 @Controller
 @RequestMapping("/{project}")
@@ -35,10 +33,10 @@ public class CounterController {
     @GetMapping
     public String projectHome(@PathVariable("project") final String projectName, final Model model) {
         try {
-            final List<Counter> counterList = this.dataService.getCounterList(projectName);
+            model.addAttribute("projects", this.dataService.getProjectList());
+            model.addAttribute("counters", this.dataService.getCounterList(projectName));
             model.addAttribute("project", projectName);
             model.addAttribute("newCounter", new CounterDto(projectName));
-            model.addAttribute("counters", counterList);
             return "projectHome";
         }
         catch (final DataLoadingException e) {
@@ -51,11 +49,11 @@ public class CounterController {
     public String addCounter(@PathVariable("project") final String projectName, @Valid @ModelAttribute("newCounter") CounterDto counterDto, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             try {
-                final List<Counter> counterList = this.dataService.getCounterList(projectName);
+                model.addAttribute("projects", this.dataService.getProjectList());
+                model.addAttribute("counters", this.dataService.getCounterList(projectName));
                 model.addAttribute("project", projectName);
-                model.addAttribute("counters", counterList);
             }
-            catch (DataLoadingException e) {
+            catch (final DataLoadingException e) {
                 LOGGER.error("Failed loading counterList for project '{}'.", projectName, e);
             }
             return "projectHome";
@@ -80,12 +78,13 @@ public class CounterController {
                               @RequestParam(name = "periodUntil", required = false) Integer periodUntil,
                               final Model model) {
         try {
-            periodFrom = periodFrom == null ? 2020 : periodFrom;
-            periodUntil = periodUntil == null ? 2030 : periodUntil;
+            periodFrom = periodFrom == null ? LocalDateTime.now().getYear() - 2 : periodFrom;
+            periodUntil = periodUntil == null ? LocalDateTime.now().getYear() + 1 : periodUntil;
 
             final RawCounterData rawCounterData = this.dataService.getRawCounterData(projectName, counterName, periodFrom, periodUntil);
             final Counter counter = this.dataService.getCounter(projectName, counterName);
 
+            model.addAttribute("projects", this.dataService.getProjectList());
             model.addAttribute("project", projectName);
             model.addAttribute("counter", counter);
             model.addAttribute("periodFrom", periodFrom);
@@ -116,6 +115,7 @@ public class CounterController {
                 final RawCounterData rawCounterData = this.dataService.getRawCounterData(projectName, counterName, periodFrom, periodUntil);
                 final Counter counter = this.dataService.getCounter(projectName, counterName);
 
+                model.addAttribute("projects", this.dataService.getProjectList());
                 model.addAttribute("project", projectName);
                 model.addAttribute("counter", counter);
                 model.addAttribute("periodFrom", periodFrom);
@@ -123,7 +123,7 @@ public class CounterController {
                 model.addAttribute("counterData", rawCounterData);
                 return "counterData";
             }
-            catch (DataLoadingException e) {
+            catch (final DataLoadingException e) {
                 LOGGER.error("Failed loading counter data for project '{}' and counter '{}' in periodFrom '{}' - periodUntil '{}'.", projectName, counterName, periodFrom, periodUntil, e);
                 return "error";
             }

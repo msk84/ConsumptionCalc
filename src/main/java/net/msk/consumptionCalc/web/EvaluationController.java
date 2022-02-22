@@ -42,6 +42,7 @@ public class EvaluationController {
             final EvaluationData evaluationData = this.dataService.getSimpleEvaluationResult(projectName, counterName, periodFrom, periodUntil, evaluationMode);
             final Counter counter = this.dataService.getCounter(projectName, counterName);
 
+            model.addAttribute("projects", this.dataService.getProjectList());
             model.addAttribute("project", projectName);
             model.addAttribute("counter", counter);
             model.addAttribute("evaluationData", evaluationData);

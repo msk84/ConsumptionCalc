@@ -33,12 +33,9 @@ public class ProjectsController {
 
     @GetMapping("/projects")
     public String projects(final Model model) {
-        final List<Project> projectList;
-
         try {
-            projectList = this.dataService.getProjectList();
+            model.addAttribute("projects", this.dataService.getProjectList());
             model.addAttribute("newProject", new ProjectDto());
-            model.addAttribute("projects", projectList);
             return "index";
         }
         catch (final DataLoadingException e) {
@@ -51,11 +48,9 @@ public class ProjectsController {
     public String addProject(@Valid @ModelAttribute("newProject") ProjectDto project, BindingResult bindingResult, Model model) {
         if(bindingResult.hasErrors()) {
             try {
-                final List<Project> projectList;
-                projectList = this.dataService.getProjectList();
-                model.addAttribute("projects", projectList);
+                model.addAttribute("projects", this.dataService.getProjectList());
             }
-            catch (DataLoadingException e) {
+            catch (final DataLoadingException e) {
                 LOGGER.error("Failed loading projectList.", e);
             }
 

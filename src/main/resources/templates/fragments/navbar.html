@@ -14,22 +14,20 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            <!--
-            <li><a class="nav-link" href="/asdf">asdf</a></li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" role="button" data-bs-toggle="dropdown" aria-expanded="false">asdf</a>
+            <!--<li><a class="nav-link" href="/asdf">asdf</a></li>-->
+            <li class="nav-item dropdown" th:each="project : ${projects}">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" role="button" data-bs-toggle="dropdown" aria-expanded="false" th:text="${project.projectName}"></a>
                 <ul class="dropdown-menu" aria-labelledby="dropdown01">
-                    <li><a class="dropdown-item" href="/do">do</a></li>
+                    <li><a class="dropdown-item" th:each="counter : ${project.counters}" th:text="${counter.counterName}" th:href="@{/{project}/{counter}/counterData(project=${project.projectName}, counter=${counter.counterName})}"></a></li>
                 </ul>
             </li>
-            -->
         </ul>
     </div>
 
     <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item text-light" th:text="${project} ?: '-'"></li>
-            <li><a class="nav-link" href="/asdf"><i class="bi bi-gear"></i></a></li>
+            <!--<li class="nav-item text-light" th:text="${project} ?: '-'"></li>-->
+            <li><a class="nav-link"><i class="bi bi-gear"></i></a></li>
         </ul>
     </div>
 </nav>

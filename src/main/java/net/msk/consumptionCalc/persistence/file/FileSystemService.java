@@ -152,7 +152,7 @@ public class FileSystemService {
 
     private boolean filterDataFiles(final Path path, final Integer periodFrom, final Integer periodUntil) {
         final String filePath = path.getFileName().toString();
-        final Integer fileNameInt = Integer.parseInt(filePath.substring(0, filePath.length() - 4));
+        final int fileNameInt = Integer.parseInt(filePath.substring(0, filePath.length() - 4));
         return filePath.toLowerCase(Locale.ROOT).endsWith(".csv") && (fileNameInt >= periodFrom) && (fileNameInt <= periodUntil);
     }
 }
