@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 
@@ -108,6 +110,27 @@ public class DataService {
         }
         catch (final IOException e) {
             throw new DataPersistanceException("Failed to addCounterData.", e);
+        }
+    }
+
+    public void deleteCounterData(final String projectName, final String counterName, final LocalDateTime timestamp) throws DataPersistanceException {
+        final int year = timestamp.getYear();
+        try {
+            final List<Path> dataFilePaths = this.fileSystemService.getRawDataFiles(projectName, counterName, year, year);
+            if(dataFilePaths.isEmpty()) {
+                throw new DataLoadingException("Failed to load data files.");
+            }
+            else {
+                final RawCounterData rawCounterData = this.csvService.loadRawCounterData(dataFilePaths);
+                final List<RawCounterDataRow> sortedList = rawCounterData.counterData().stream()
+                        .filter(r -> !r.timestamp().truncatedTo(ChronoUnit.MINUTES).equals(timestamp.truncatedTo(ChronoUnit.MINUTES)))
+                        .toList();
+                final RawCounterData newRawCounterData = new RawCounterData(sortedList);
+                this.csvService.persistRawCounterData(this.fileSystemService.getRawDataFilePathForYear(projectName, counterName, year), newRawCounterData);
+            }
+        }
+        catch (final IOException | DataLoadingException e) {
+            throw new DataPersistanceException("Failed to delete counter data.", e);
         }
     }
 

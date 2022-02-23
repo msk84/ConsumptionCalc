@@ -10,6 +10,7 @@ import net.msk.consumptionCalc.service.exception.DataLoadingException;
 import net.msk.consumptionCalc.service.exception.DataPersistanceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -110,14 +111,12 @@ public class CounterController {
                                  Model model) {
 
         if (bindingResult.hasErrors()) {
-
             try {
                 final RawCounterData rawCounterData = this.dataService.getRawCounterData(projectName, counterName, periodFrom, periodUntil);
-                final Counter counter = this.dataService.getCounter(projectName, counterName);
 
                 model.addAttribute("projects", this.dataService.getProjectList());
                 model.addAttribute("project", projectName);
-                model.addAttribute("counter", counter);
+                model.addAttribute("counter", this.dataService.getCounter(projectName, counterName));
                 model.addAttribute("periodFrom", periodFrom);
                 model.addAttribute("periodUntil", periodUntil);
                 model.addAttribute("counterData", rawCounterData);
@@ -136,6 +135,22 @@ public class CounterController {
             catch (final DataPersistanceException | DataLoadingException e) {
                 LOGGER.error("Failed to add counter data.", e);
             }
+        }
+        return "error";
+    }
+
+    @GetMapping("/{counter}/deleteCounterData")
+    public String deleteCounterDataRow(@PathVariable("project") final String projectName,
+                                       @PathVariable("counter") final String counterName,
+                                       @RequestParam(name = "periodFrom", required = false) Integer periodFrom,
+                                       @RequestParam(name = "periodUntil", required = false) Integer periodUntil,
+                                       @RequestParam(name = "timestamp") @DateTimeFormat(pattern = "yyyy-MM-dd_HH:mm") LocalDateTime timestamp) {
+        try {
+            this.dataService.deleteCounterData(projectName, counterName, timestamp);
+            return "redirect:/" + projectName + "/" + counterName + "/counterData?periodFrom=" + periodFrom + "&periodUntil=" + periodUntil;
+        }
+        catch (final DataPersistanceException e) {
+            LOGGER.error("Failed to delete counter data row.", e);
         }
         return "error";
     }

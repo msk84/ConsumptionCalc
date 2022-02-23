@@ -28,13 +28,14 @@
                     </div>
                 </div>
 
-                <table class="table" id="dataTable">
+                <table class="table table-hover table-striped" id="dataTable">
                     <thead>
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Timestamp</th>
                             <th scope="col" th:text="'Counter value (' + ${counter.unit.toString()} + ')'">Counter value</th>
                             <th scope="col">Comment</th>
+                            <th scope="col"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -43,6 +44,11 @@
                             <td th:text="${#temporals.format(dataRow.timestamp, 'yyyy-MM-dd HH:mm')}"></td>
                             <td th:text="${#numbers.formatDecimal(dataRow.value,1,2)}"></td>
                             <td th:text="${dataRow.comment ne null} ? ${dataRow.comment} : '-'"></td>
+                            <td class="text-end">
+                                <div class='edit_hover_class'>
+                                    <a th:href="@{/{project}/{counter}/deleteCounterData(project=${project}, counter=${counter.counterName}, periodFrom=${periodFrom}, periodUntil=${periodUntil}, timestamp=${#temporals.format(dataRow.timestamp, 'yyyy-MM-dd_HH:mm')})}"><i class="bi bi-x-circle"></i></a>
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
