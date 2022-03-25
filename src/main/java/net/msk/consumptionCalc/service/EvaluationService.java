@@ -35,12 +35,20 @@ public class EvaluationService {
             final LocalDateTime startDateTime = lastMeasurement.timestamp();
             final LocalDateTime endDateTime = currentMeasurement.timestamp();
 
+            if(currentMeasurement.counterExchange()) {
+                columnData.add(null);
+                columnData.add(null);
+                columnData.add(null);
+                dataList.add(new EvaluationDataRow(startDateTime, endDateTime, columnData));
+                continue;
+            }
+
             final double consumption = currentMeasurement.value() - lastMeasurement.value();
             columnData.add(Double.toString(consumption));
 
             if(ChronoUnit.DAYS.between(startDateTime, endDateTime) < 1) {
                 columnData.add(null);
-                columnData.add(null);
+                columnData.add(null); //Todo: Why not calculating the hours?
             }
             else {
                 long hours = ChronoUnit.HOURS.between(startDateTime, endDateTime) +
@@ -80,6 +88,10 @@ public class EvaluationService {
         for(int i = 0; i < rawCounterData.counterData().size() - 1; i++) {
             final RawCounterDataRow lastMeasurement = rawCounterData.counterData().get(i);
             final RawCounterDataRow currentMeasurement = rawCounterData.counterData().get(i+1);
+
+            if(currentMeasurement.counterExchange()) {
+                continue;
+            }
 
             final LocalDateTime startDateTime = lastMeasurement.timestamp();
             final LocalDateTime endDateTime = currentMeasurement.timestamp();

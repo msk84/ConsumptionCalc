@@ -35,13 +35,15 @@ public class CsvService {
             final Iterable<CSVRecord> records = csvFormat.parse(dataFileReader);
             for (final CSVRecord record : records) {
                 final String timestampString = record.get("timestamp");
+                final String counterExchangeString = record.get("counterExchange");
                 final String counterValueString = record.get("value");
                 final String comment = record.get("comment");
 
                 final LocalDateTime datetime = LocalDateTime.parse(timestampString);
+                final boolean counterExchange = Boolean.parseBoolean(counterExchangeString);
                 final double counterValue = Double.parseDouble(counterValueString);
 
-                result.add(new RawCounterDataRow(datetime, counterValue, comment));
+                result.add(new RawCounterDataRow(datetime, counterExchange, counterValue, comment));
             }
             dataFileReader.close();
         }
@@ -54,6 +56,7 @@ public class CsvService {
 
         final List<String> headers = new ArrayList<>();
         headers.add("timestamp");
+        headers.add("counterExchange");
         headers.add("value");
         headers.add("comment");
 
@@ -65,6 +68,7 @@ public class CsvService {
             rawCounterData.counterData().forEach(row -> {
                 final List<String> rowData = new ArrayList<>();
                 rowData.add(row.timestamp().toString());
+                rowData.add(Boolean.toString(row.counterExchange()));
                 rowData.add(Double.toString(row.value()));
                 rowData.add(row.comment());
                 try {

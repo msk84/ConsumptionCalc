@@ -6,6 +6,7 @@ import javax.validation.constraints.Size;
 public class CounterMeasurementDto {
 
     private String timestamp;
+    private boolean counterExchange;
     private double value;
 
     @Size(min=0, max=100)
@@ -15,8 +16,9 @@ public class CounterMeasurementDto {
     public CounterMeasurementDto() {
     }
 
-    public CounterMeasurementDto(final String timestamp, final double value, final String comment) {
+    public CounterMeasurementDto(final String timestamp, final boolean counterExchange, final double value, final String comment) {
         this.timestamp = timestamp;
+        this.counterExchange = counterExchange;
         this.value = value;
         this.comment = comment;
     }
@@ -27,6 +29,14 @@ public class CounterMeasurementDto {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public boolean isCounterExchange() {
+        return counterExchange;
+    }
+
+    public void setCounterExchange(boolean counterExchange) {
+        this.counterExchange = counterExchange;
     }
 
     public double getValue() {

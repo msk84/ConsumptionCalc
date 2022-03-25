@@ -34,6 +34,7 @@
                             <th scope="col">#</th>
                             <th scope="col">Timestamp</th>
                             <th scope="col" th:text="'Counter value (' + ${counter.unit.toString()} + ')'">Counter value</th>
+                            <th scope="col">Counter exchange</th>
                             <th scope="col">Comment</th>
                             <th scope="col"></th>
                         </tr>
@@ -43,6 +44,9 @@
                             <th scope="row" th:text="${dataIndex.index}"></th>
                             <td th:text="${#temporals.format(dataRow.timestamp, 'yyyy-MM-dd HH:mm')}"></td>
                             <td th:text="${#numbers.formatDecimal(dataRow.value,1,2)}"></td>
+                            <td>
+                                <i th:if="${dataRow.counterExchange}" class="bi bi-check"></i>
+                            </td>
                             <td th:text="${dataRow.comment ne null} ? ${dataRow.comment} : '-'"></td>
                             <td class="text-end">
                                 <div class='edit_hover_class'>
@@ -72,6 +76,14 @@
                                 </div>
                                 <div class="col">
                                     <input type="datetime-local" class="form-control" id="addCounterDataTimestamp" th:field="*{timestamp}" >
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="counterExchange" class="col-form-label">Counter exchange</label>
+                                </div>
+                                <div class="col">
+                                    <input type="checkbox" class="form-check-input" id="counterExchange" th:field="*{counterExchange}">
                                 </div>
                             </div>
                             <div class="row mb-3">

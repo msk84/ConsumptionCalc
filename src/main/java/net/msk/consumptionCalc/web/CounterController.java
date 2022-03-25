@@ -91,7 +91,7 @@ public class CounterController {
             model.addAttribute("periodFrom", periodFrom);
             model.addAttribute("periodUntil", periodUntil);
             model.addAttribute("counterData", rawCounterData);
-            model.addAttribute("newCounterValue", new CounterMeasurementDto(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), 0.0, ""));
+            model.addAttribute("newCounterValue", new CounterMeasurementDto(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), false, 0.0, ""));
 
             return "counterData";
         }
@@ -129,7 +129,7 @@ public class CounterController {
         }
         else {
             try {
-                this.dataService.addCounterData(projectName, counterName, new RawCounterDataRow(LocalDateTime.parse(counterData.getTimestamp()), counterData.getValue(), counterData.getComment()));
+                this.dataService.addCounterData(projectName, counterName, new RawCounterDataRow(LocalDateTime.parse(counterData.getTimestamp()), counterData.isCounterExchange(), counterData.getValue(), counterData.getComment()));
                 return "redirect:/" + projectName + "/" + counterName + "/counterData?periodFrom=" + periodFrom + "&periodUntil=" + periodUntil;
             }
             catch (final DataPersistanceException | DataLoadingException e) {
