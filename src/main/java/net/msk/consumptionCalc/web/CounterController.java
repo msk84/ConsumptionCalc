@@ -42,6 +42,7 @@ public class CounterController {
         }
         catch (final DataLoadingException e) {
             LOGGER.error("Failed loading counterList for project '{}'.", projectName, e);
+            model.addAttribute("errorMessage", "Failed loading counterList. " + e.getMessage());
             return "error";
         }
     }
@@ -97,6 +98,7 @@ public class CounterController {
         }
         catch (final DataLoadingException e) {
             LOGGER.error("Failed loading counter data for project '{}' and counter '{}' in periodFrom '{}' - periodUntil '{}'.", projectName, counterName, periodFrom, periodUntil, e);
+            model.addAttribute("errorMessage", "Failed to load counter data. " + e.getMessage());
             return "error";
         }
     }
@@ -107,8 +109,8 @@ public class CounterController {
                                  @RequestParam(name = "periodFrom", required = false) Integer periodFrom,
                                  @RequestParam(name = "periodUntil", required = false) Integer periodUntil,
                                  @Valid @ModelAttribute("newCounterValue") CounterMeasurementDto counterData,
-                                 BindingResult bindingResult,
-                                 Model model) {
+                                 final BindingResult bindingResult,
+                                 final Model model) {
 
         if (bindingResult.hasErrors()) {
             try {
@@ -123,7 +125,9 @@ public class CounterController {
                 return "counterData";
             }
             catch (final DataLoadingException e) {
-                LOGGER.error("Failed loading counter data for project '{}' and counter '{}' in periodFrom '{}' - periodUntil '{}'.", projectName, counterName, periodFrom, periodUntil, e);
+                LOGGER.error("Failed to load counter data for project '{}' and counter '{}' in periodFrom '{}' - periodUntil '{}'.", projectName, counterName, periodFrom, periodUntil, e);
+                model.addAttribute("errorMessage", "Failed to load counter data.");
+                model.addAttribute("exception", e);
                 return "error";
             }
         }
@@ -134,6 +138,8 @@ public class CounterController {
             }
             catch (final DataPersistanceException | DataLoadingException e) {
                 LOGGER.error("Failed to add counter data.", e);
+                model.addAttribute("errorMessage", "Failed to add counter data.");
+                model.addAttribute("exception", e);
             }
         }
         return "error";
@@ -144,13 +150,16 @@ public class CounterController {
                                        @PathVariable("counter") final String counterName,
                                        @RequestParam(name = "periodFrom", required = false) Integer periodFrom,
                                        @RequestParam(name = "periodUntil", required = false) Integer periodUntil,
-                                       @RequestParam(name = "timestamp") @DateTimeFormat(pattern = "yyyy-MM-dd_HH:mm") LocalDateTime timestamp) {
+                                       @RequestParam(name = "timestamp") @DateTimeFormat(pattern = "yyyy-MM-dd_HH:mm") LocalDateTime timestamp,
+                                       final Model model) {
         try {
             this.dataService.deleteCounterData(projectName, counterName, timestamp);
             return "redirect:/" + projectName + "/" + counterName + "/counterData?periodFrom=" + periodFrom + "&periodUntil=" + periodUntil;
         }
         catch (final DataPersistanceException e) {
             LOGGER.error("Failed to delete counter data row.", e);
+            model.addAttribute("errorMessage", "Failed to delete counter data row.");
+            model.addAttribute("exception", e);
         }
         return "error";
     }
