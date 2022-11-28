@@ -1,5 +1,6 @@
 package net.msk.consumptionCalc.web;
 
+import jakarta.validation.Valid;
 import net.msk.consumptionCalc.model.Counter;
 import net.msk.consumptionCalc.model.RawCounterData;
 import net.msk.consumptionCalc.model.clientDto.CounterDto;
@@ -16,7 +17,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 

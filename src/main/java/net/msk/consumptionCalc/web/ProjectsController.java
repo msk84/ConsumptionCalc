@@ -1,5 +1,6 @@
 package net.msk.consumptionCalc.web;
 
+import jakarta.validation.Valid;
 import net.msk.consumptionCalc.model.clientDto.ProjectDto;
 import net.msk.consumptionCalc.service.DataService;
 import net.msk.consumptionCalc.service.exception.DataLoadingException;
@@ -10,8 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 
 @Controller
 public class ProjectsController {
