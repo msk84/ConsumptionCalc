@@ -2,7 +2,8 @@ package net.msk.consumptionCalc.model;
 
 public enum Unit {
     m3("m³"),
-    kWh("kWh");
+    kWh("kWh"),
+    km("km");
 
     Unit(final String stringValue) {
         this.stringValue = stringValue;

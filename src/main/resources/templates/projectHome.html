@@ -44,8 +44,10 @@
                                     </div>
                                     <div class="col">
                                         <select class="form-select" aria-label="Default select example" id="unit" th:field="*{unit}">
-                                            <option value="m3">m³</option>
-                                            <option value="kWh">kWh</option>
+                                            <option th:each="unit : ${T(net.msk.consumptionCalc.model.Unit).values()}"
+                                                    th:value="${unit.name()}"
+                                                    th:text="${unit.toString()}">
+                                            </option>
                                         </select>
                                     </div>
                                 </div>
